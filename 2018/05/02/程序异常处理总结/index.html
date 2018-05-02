@@ -1,0 +1,782 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="架构,分布式,异常," />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="描述平时我们在开发程序的过程中,总是必不可免的会出现各种各样的异常情况,这些异常信息可能来自于业务层也可能由底层代码抛出,如数据访问层等.异常信息如果直接抛出给客户端,会带来很不好的用户体验,所以必须由服务端来做处理,最简单的方式就是直接try catch,但是一个项目里面如果大量的做这种处理,会使得整个系统的代码风格看起来很乱,工作量大且耦合度高,所以在框架层面要做统一的拦截处理. 实现异常可简">
+<meta name="keywords" content="架构,分布式,异常">
+<meta property="og:type" content="article">
+<meta property="og:title" content="程序异常处理总结">
+<meta property="og:url" content="http://yoursite.com/2018/05/02/程序异常处理总结/index.html">
+<meta property="og:site_name" content="William-zzw">
+<meta property="og:description" content="描述平时我们在开发程序的过程中,总是必不可免的会出现各种各样的异常情况,这些异常信息可能来自于业务层也可能由底层代码抛出,如数据访问层等.异常信息如果直接抛出给客户端,会带来很不好的用户体验,所以必须由服务端来做处理,最简单的方式就是直接try catch,但是一个项目里面如果大量的做这种处理,会使得整个系统的代码风格看起来很乱,工作量大且耦合度高,所以在框架层面要做统一的拦截处理. 实现异常可简">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:updated_time" content="2018-05-02T07:15:40.614Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="程序异常处理总结">
+<meta name="twitter:description" content="描述平时我们在开发程序的过程中,总是必不可免的会出现各种各样的异常情况,这些异常信息可能来自于业务层也可能由底层代码抛出,如数据访问层等.异常信息如果直接抛出给客户端,会带来很不好的用户体验,所以必须由服务端来做处理,最简单的方式就是直接try catch,但是一个项目里面如果大量的做这种处理,会使得整个系统的代码风格看起来很乱,工作量大且耦合度高,所以在框架层面要做统一的拦截处理. 实现异常可简">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: 'William-zzw'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2018/05/02/程序异常处理总结/"/>
+
+
+
+
+
+  <title>程序异常处理总结 | William-zzw</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">William-zzw</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/05/02/程序异常处理总结/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="William.zhang">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/uploads/images/avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="William-zzw">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">程序异常处理总结</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-05-02T01:16:38+08:00">
+                2018-05-02
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/架构/" itemprop="url" rel="index">
+                    <span itemprop="name">架构</span>
+                  </a>
+                </span>
+
+                
+                
+                  ， 
+                
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/架构/分布式/" itemprop="url" rel="index">
+                    <span itemprop="name">分布式</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h1 id="描述"><a href="#描述" class="headerlink" title="描述"></a>描述</h1><p>平时我们在开发程序的过程中,总是必不可免的会出现各种各样的异常情况,这些异常信息可能来自于业务层也可能由底层代码抛出,如数据访问层等.异常信息如果直接抛出给客户端,会带来很不好的用户体验,所以必须由服务端来做处理,最简单的方式就是直接try catch,但是一个项目里面如果大量的做这种处理,会使得整个系统的代码风格看起来很乱,工作量大且耦合度高,所以在框架层面要做统一的拦截处理.</p>
+<h1 id="实现"><a href="#实现" class="headerlink" title="实现"></a>实现</h1><p>异常可简单区分为unchecked异常和checked异常,在Java体系里所有的error和runtimeException及其子类都属于unchecked异常,除此之外异常都属于checked异常.<br>对于checked异常是必须要由程序做try catch处理或者在方法声明处往外throws到调用方,也可直接丢给JVM处理.<br>对于unchecked异常,系统默认会自动把该异常往上抛出,调用端可做处理也可不做,或者直接丢给JVM.<br>再来看看Spring框架是如何处理异常的,它提供了三种统一异常处理的方式:<br>(1)使用SpringMVC提供的简单异常处理器SimpleMappingExceptionResolver.<br>(2)自定义一个异常处理器,实现Spring提供的异常处理接口  HandlerExceptionResolver或继承自Spring提供的异常处理抽象类AbstractHandlerExceptionResolver.<br>(3)最简单的方式在Controller层直接使用@ExceptionHandler注解.<br>一般情况下在项目中我们会自定义各种各样的异常类如业务异常类BusinessException,参数校验异常类ParameterException等等,都继承自java.lang.RuntimeException.在这里我们使用了@ExceptionHandler注解的方式并且在所有controller层的基类BaseController里面写个方法做统一处理后再根据各个调用端的不同包装为相应的实体对象返回过去,这样客户端可以做出友好的提示例如：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@ExceptionHandler</span>(&#123;Exception.class, BusinessException.class,</span><br><span class="line">        UnauthorizedException.class, AuthorizationException.class,</span><br><span class="line">        SQLException.class&#125;)</span><br><span class="line"><span class="meta">@ResponseBody</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> Object <span class="title">handlerException</span><span class="params">(Exception ex, HttpServletRequest request)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (StringHelpUtils.isNotEmpty(request.getHeader(<span class="string">"device"</span>))</span><br><span class="line">            &amp;&amp; (request.getHeader(<span class="string">"device"</span>).equals(<span class="string">"APP"</span>) || request</span><br><span class="line">            .getHeader(<span class="string">"device"</span>).equals(<span class="string">"H5"</span>))) &#123;</span><br><span class="line">        logger.error(<span class="string">"客户端设备:&#123;&#125;"</span>, request.getHeader(<span class="string">"device"</span>));</span><br><span class="line">        <span class="keyword">if</span> (ex <span class="keyword">instanceof</span> BusinessException) &#123;<span class="comment">// 业务异常</span></span><br><span class="line">            <span class="keyword">return</span> <span class="keyword">new</span> ResponseEntity().isOk(HttpStatus.FAIL, ex.getMessage(), ex.getMessage());</span><br><span class="line">        &#125; <span class="keyword">else</span> <span class="keyword">if</span> (ex <span class="keyword">instanceof</span> UnauthorizedException) &#123;<span class="comment">// shiro授权异常</span></span><br><span class="line">            <span class="keyword">return</span> <span class="keyword">new</span> ResponseEntity().isOk(HttpStatus.UNAUTHORIZED, <span class="string">""</span>);</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;<span class="comment">// 其他异常</span></span><br><span class="line">            <span class="keyword">return</span> <span class="keyword">new</span> ResponseEntity().isOk(HttpStatus.FAIL, <span class="string">"服务器歇菜了。。。"</span>, <span class="string">""</span>);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        <span class="keyword">if</span> (ex <span class="keyword">instanceof</span> BusinessException) &#123;<span class="comment">// 业务异常</span></span><br><span class="line">            <span class="keyword">if</span> (!<span class="string">"XMLHttpRequest"</span>.equalsIgnoreCase(request</span><br><span class="line">                    .getHeader(<span class="string">"X-Requested-With"</span>))) &#123;<span class="comment">// 不是ajax请求</span></span><br><span class="line">                ModelAndView view = <span class="keyword">new</span> ModelAndView(<span class="string">"redirect:/exception"</span>);</span><br><span class="line">                view.addObject(<span class="string">"message"</span>, ex.getMessage());</span><br><span class="line">                <span class="keyword">return</span> view;</span><br><span class="line">            &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">                <span class="keyword">return</span> <span class="keyword">new</span> ResponseEntity().isOk(HttpStatus.FAIL, <span class="string">""</span>, ex.getMessage());</span><br><span class="line">            &#125;</span><br><span class="line">        &#125; <span class="keyword">else</span> <span class="keyword">if</span> (ex <span class="keyword">instanceof</span> UnauthorizedException) &#123;<span class="comment">// shiro授权异常</span></span><br><span class="line">            <span class="keyword">if</span> (!<span class="string">"XMLHttpRequest"</span>.equalsIgnoreCase(request</span><br><span class="line">                    .getHeader(<span class="string">"X-Requested-With"</span>))) &#123;<span class="comment">// 不是ajax请求</span></span><br><span class="line">                ModelAndView view = <span class="keyword">new</span> ModelAndView(</span><br><span class="line">                        <span class="string">"redirect:/unAuthorized"</span>);</span><br><span class="line">                view.addObject(<span class="string">"message"</span>, ex.getMessage());</span><br><span class="line">                <span class="keyword">return</span> view;</span><br><span class="line">            &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">                <span class="keyword">return</span> <span class="keyword">new</span> ResponseEntity().isOk(HttpStatus.UNAUTHORIZED, <span class="string">""</span>, <span class="string">"你没有操作权限"</span>);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;<span class="comment">// 其他异常</span></span><br><span class="line">            <span class="keyword">if</span> (!<span class="string">"XMLHttpRequest"</span>.equalsIgnoreCase(request</span><br><span class="line">                    .getHeader(<span class="string">"X-Requested-With"</span>))) &#123;<span class="comment">// 不是ajax请求</span></span><br><span class="line">                ModelAndView view = <span class="keyword">new</span> ModelAndView(<span class="string">"redirect:/exception"</span>);</span><br><span class="line">                view.addObject(<span class="string">"message"</span>, ex.getMessage());</span><br><span class="line">                <span class="keyword">return</span> view;</span><br><span class="line">            &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">                <span class="keyword">return</span> <span class="keyword">new</span> ResponseEntity().isOk(HttpStatus.FAIL, <span class="string">""</span>, ex.getMessage());</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>另外Spring的事务管理机制默认是只有捕捉到的异常是unchecked异常时事务才会回滚。<br>所以分为两种情况:<br>1.事务管理器使用默认配置<br>a.如果程序运行过程中出现了runtimeException.<br>在service层如果使用try catch捕捉异常必须再次显示的throw出来，否则事务无法回滚.<br>b.如果程序出现了checked异常.<br>则不管有没有try catch还是往上throw,事务都无法回滚,程序必须捕捉处理.<br>2.事务管理器配置了可回滚的异常类如rollback-for=java.lang.Excecption<br>如果程序运行过程中出现了runtimeException或者checked异常.<br>在service层如果使用try catch捕捉异常必须再次显示的throw出来，否则事务无法回滚.</p>
+<h1 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h1><p>不管程序出现了什么类型的异常,只要使用了try catch这种方式则必须往上throw出来,从代码规范的角度看,尽量避免使用try catch的方式,要么使用throws往外抛。而绝大部分情况下出现的异常如NullPointExeption,SQLException等都是runtimeException,只有少部分情况下会出现checked异常如IOException需要显示的在代码中使用try catch或方法签名处throws出来,不然编译器编译不通过.</p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/架构/" rel="tag"># 架构</a>
+          
+            <a href="/tags/分布式/" rel="tag"># 分布式</a>
+          
+            <a href="/tags/异常/" rel="tag"># 异常</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2018/01/28/关于接口幂等性的总结/" rel="next" title="关于接口幂等性的总结">
+                <i class="fa fa-chevron-left"></i> 关于接口幂等性的总结
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image"
+                src="/uploads/images/avatar.jpg"
+                alt="William.zhang" />
+            
+              <p class="site-author-name" itemprop="name">William.zhang</p>
+              <p class="site-description motion-element" itemprop="description">纸上得来终觉浅，绝知此事要躬行</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">3</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">4</span>
+                  <span class="site-state-item-name">分类</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">5</span>
+                  <span class="site-state-item-name">标签</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+            <div class="links-of-blogroll motion-element links-of-blogroll-inline">
+              <div class="links-of-blogroll-title">
+                <i class="fa  fa-fw fa-link"></i>
+                Links
+              </div>
+              <ul class="links-of-blogroll-list">
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="https://www.jianshu.com/u/ab57f4fbcce3" title="我的简书" target="_blank">我的简书</a>
+                  </li>
+                
+              </ul>
+            </div>
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#描述"><span class="nav-number">1.</span> <span class="nav-text">描述</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#实现"><span class="nav-number">2.</span> <span class="nav-text">实现</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#总结"><span class="nav-number">3.</span> <span class="nav-text">总结</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2018</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">William.zhang</span>
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Pisces</a> v5.1.4</div>
+
+
+
+<span id="busuanzi_container_site_uv">
+  本站访客数<span id="busuanzi_value_site_uv"></span>人次
+</span>
+<span id="busuanzi_container_page_pv">
+  本文总阅读量<span id="busuanzi_value_page_pv"></span>次
+</span>
+<script async src="//dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.4"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
