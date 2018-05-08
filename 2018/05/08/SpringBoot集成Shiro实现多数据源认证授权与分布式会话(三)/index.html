@@ -1,0 +1,803 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="架构,SpringBoot,Shiro," />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="前言前面我们利用springboot结合shiro在项目中解决了多数据源认证的问题,接下来我们来看看如何在之前的框架基础上实现分布式session管理.在一般情况下web服务器与客户端采用http协议进行通讯,大家都知道http协议本身是一种无状态的协议,即每次请求之间都是相互独立的,服务器无法记住当前请求的用户是谁,可想而知在绝大部分业务场景下,对于用户来讲这种体验是非常糟糕的,而session">
+<meta name="keywords" content="架构,SpringBoot,Shiro">
+<meta property="og:type" content="article">
+<meta property="og:title" content="SpringBoot集成Shiro实现多数据源认证授权与分布式会话(三)">
+<meta property="og:url" content="http://yoursite.com/2018/05/08/SpringBoot集成Shiro实现多数据源认证授权与分布式会话(三)/index.html">
+<meta property="og:site_name" content="William-zzw">
+<meta property="og:description" content="前言前面我们利用springboot结合shiro在项目中解决了多数据源认证的问题,接下来我们来看看如何在之前的框架基础上实现分布式session管理.在一般情况下web服务器与客户端采用http协议进行通讯,大家都知道http协议本身是一种无状态的协议,即每次请求之间都是相互独立的,服务器无法记住当前请求的用户是谁,可想而知在绝大部分业务场景下,对于用户来讲这种体验是非常糟糕的,而session">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="https://upload-images.jianshu.io/upload_images/5104125-6ba53abe8a0fae9e.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+<meta property="og:image" content="https://upload-images.jianshu.io/upload_images/5104125-4ed8e5ee02c802ee.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+<meta property="og:updated_time" content="2018-05-08T15:19:11.364Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="SpringBoot集成Shiro实现多数据源认证授权与分布式会话(三)">
+<meta name="twitter:description" content="前言前面我们利用springboot结合shiro在项目中解决了多数据源认证的问题,接下来我们来看看如何在之前的框架基础上实现分布式session管理.在一般情况下web服务器与客户端采用http协议进行通讯,大家都知道http协议本身是一种无状态的协议,即每次请求之间都是相互独立的,服务器无法记住当前请求的用户是谁,可想而知在绝大部分业务场景下,对于用户来讲这种体验是非常糟糕的,而session">
+<meta name="twitter:image" content="https://upload-images.jianshu.io/upload_images/5104125-6ba53abe8a0fae9e.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: 'William-zzw'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2018/05/08/SpringBoot集成Shiro实现多数据源认证授权与分布式会话(三)/"/>
+
+
+
+
+
+  <title>SpringBoot集成Shiro实现多数据源认证授权与分布式会话(三) | William-zzw</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">William-zzw</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/05/08/SpringBoot集成Shiro实现多数据源认证授权与分布式会话(三)/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="William.zhang">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/uploads/images/avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="William-zzw">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">SpringBoot集成Shiro实现多数据源认证授权与分布式会话(三)</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-05-08T00:35:41+08:00">
+                2018-05-08
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/架构/" itemprop="url" rel="index">
+                    <span itemprop="name">架构</span>
+                  </a>
+                </span>
+
+                
+                
+                  ， 
+                
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/架构/SpringBoot/" itemprop="url" rel="index">
+                    <span itemprop="name">SpringBoot</span>
+                  </a>
+                </span>
+
+                
+                
+                  ， 
+                
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/架构/SpringBoot/Shiro/" itemprop="url" rel="index">
+                    <span itemprop="name">Shiro</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>前面我们利用springboot结合shiro在项目中解决了多数据源认证的问题,接下来我们来看看如何在之前的框架基础上实现分布式session管理.在一般情况下web服务器与客户端采用http协议进行通讯,大家都知道http协议本身是一种无状态的协议,即每次请求之间都是相互独立的,服务器无法记住当前请求的用户是谁,可想而知在绝大部分业务场景下,对于用户来讲这种体验是非常糟糕的,而session便是一种让web服务器与客户端之间进行状态保持的解决方案.</p>
+<h1 id="session与cookie"><a href="#session与cookie" class="headerlink" title="session与cookie"></a>session与cookie</h1><p>session即会话,会话是存储在web服务器端内存中的,类似于map这样的一种数据结构,session与cookie之间的关系简单点说就是用户在第一次通过浏览器访问服务端时,服务端会为当前用户创建一个session对象并将生成的唯一标识sessionid返回给客户端浏览器存储到cookie中,当用户登录之后,服务端通过浏览器请求头中传递过来的sessionid在web容器中找到对应session并将用户的个人信息与登录状态和其绑定起来,这样子以后每次请求,服务端都能与客户端建立起有效的状态保持了.</p>
+<h1 id="什么是session共享"><a href="#什么是session共享" class="headerlink" title="什么是session共享"></a>什么是session共享</h1><p>通常在单体应用下是无需考虑session的共享问题,因为这种架构一般是集中式部署的,即所有的代码都部署到一台web服务器上,代码分层也是很经典的MVC三层架构:<img src="https://upload-images.jianshu.io/upload_images/5104125-6ba53abe8a0fae9e.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="单体架构图.png"></p>
+<p>随着业务的发展以及应用的迭代开发,单体架构臃肿的代码结构不但难以维护而且无法满足迅速变化的业务需求,所以集中式的架构必须演进为分布式架构以突破原有架构的瓶颈,应付高并发的访问量.在分布式架构中把原来的单体架构按照功能模块解耦成若干个微服务的形式对外提供api接口,并且每个微服务都独立的部署到各自的服务器上面.<img src="https://upload-images.jianshu.io/upload_images/5104125-4ed8e5ee02c802ee.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="分布式架构图.png"><br>此时应用虽然不存在单点问题,但是也由于服务器是多个节点同时向外提供服务的,如果此时前端负载均衡器将客户端请求分发到不同的服务器节点上面,就会因为其中某些节点上没有用户session而导致请求失效.所以在单体架构中依赖于容器自身所提供的session管理方案已经无法满足分布式或集群场景下的需要,于是我们需要有一套机制来保证多节点的session数据可以共享.</p>
+<h1 id="session一致性解决方案"><a href="#session一致性解决方案" class="headerlink" title="session一致性解决方案"></a>session一致性解决方案</h1><p>接下来我们来看看主要有哪些常见的session共享方案.<br>1.session复制<br>主要方案主要依赖于tomcat等web服务器,可在多个服务器之间自动实时复制session数据,如利用Terracotta来实现tomcat间session共享,配置对原来的应用完全透明,原有程序几乎不用做任何修改。而且Terracotta本身支持HA,或者tomcat自带的cluster也可以,但是这种方案效率较低,用户量大并发量大时非常消耗系统资源,占用网络带宽而且可能有延迟.<br>2.nginx配置ip的hash路由策略<br>利用nginx的基于访问ip的hash路由策略,其原理就是同一个ip的所有请求都会被nginx进行ip_hash进行计算，通过结果定位到指定的后台服务器即一个用户如果ip不变，那么每次请求的都是同一后台服务器.但是最外层的代理要保证源ip在请求的过程不会被修改,如果你的架构里在最外层方式不单单是nginx服务,而是类似于请求分发的服务那么一个用户的请求可能被定位到不同的服务器上或者说一个局域网有许多用户同时登录,那么ip_hash就没有什么用了.<br>3.存储在cookie中<br>session也可存储于客户端cookie中,但数据大小有限制,且用户有可能禁用cookie,存在安全隐患.<br>4.Spring Session<br>spring提供的一整套管理支持分布式session的方案,默认采用外置的redis来存储数据,以此来解决会话共享的问题。<br>5.实现独立的会话中心<br>利用如数据库、redis或者memcache等第三方存储介质来保存会话信息,负责session数据共享,并实现独立的会话中心来管理session的生命周期,让其不再与web容器耦合在一起.<br>在项目中我们采取了自建会话中心的方式来支持session共享.</p>
+<h1 id="shiro如何结合redis实现session共享"><a href="#shiro如何结合redis实现session共享" class="headerlink" title="shiro如何结合redis实现session共享"></a>shiro如何结合redis实现session共享</h1><p>首先shiro提供了可扩展会话管理的顶层接口AbstractSessionDAO,我们可以自定义自己的RedisSessionDao类继承自AbstractSessionDAO,在此实现类中分别覆写以下方法:<br>doCreate():用户第一次访问系统创建会话信息<br>doReadSession():读取会话信息<br>update():更新用户会话信息<br>delete():删除用户会话信息<br>getActiveSessions():获取所有的在线会话信息<br>这几个方法即提供了对会话的基本管理crud以及session超时策略的控制,主要代码如下:<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Override</span></span><br><span class="line"><span class="function"><span class="keyword">protected</span> Serializable <span class="title">doCreate</span><span class="params">(Session session)</span> </span>&#123;</span><br><span class="line">    Serializable sessionId = SessionCons.TOKEN_PREFIX</span><br><span class="line">            + UUID.randomUUID().toString();</span><br><span class="line">    assignSessionId(session, sessionId);</span><br><span class="line">    redisTemplate.opsForValue().set(sessionId, session);</span><br><span class="line">    redisTemplate.expire(sessionId, PC_EXPIRE_TIME, TimeUnit.SECONDS);</span><br><span class="line">    <span class="keyword">if</span> (logger.isDebugEnabled()) &#123;</span><br><span class="line">        logger.debug(<span class="string">"create shiro session ,sessionId is :&#123;&#125;"</span>,</span><br><span class="line">                sessionId.toString());</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> sessionId;</span><br><span class="line">&#125;</span><br><span class="line"><span class="meta">@Override</span></span><br><span class="line"><span class="function"><span class="keyword">protected</span> Session <span class="title">doReadSession</span><span class="params">(Serializable sessionId)</span> </span>&#123;</span><br><span class="line">    Session session = redisTemplate.opsForValue().get(sessionId);</span><br><span class="line">    <span class="keyword">if</span> (<span class="keyword">null</span> != session) &#123;</span><br><span class="line">        String deviceType = (String) session</span><br><span class="line">                .getAttribute(SessionCons.DEVICE_TYPE);</span><br><span class="line">        <span class="keyword">if</span> (StringHelpUtils.isNotBlank(deviceType)) &#123;</span><br><span class="line">            <span class="keyword">if</span> (deviceType.equals(DeviceType.PC.toString())) &#123;</span><br><span class="line">                <span class="comment">// PC会话信息</span></span><br><span class="line">                session.setTimeout(PC_EXPIRE_TIME * <span class="number">1000</span>);</span><br><span class="line">                <span class="keyword">if</span> (logger.isDebugEnabled()) &#123;</span><br><span class="line">                    logger.debug(<span class="string">"read pc session ,sessionId is :&#123;&#125;"</span>,</span><br><span class="line">                            sessionId.toString());</span><br><span class="line">                &#125;</span><br><span class="line">            &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">                <span class="comment">// APP会话信息</span></span><br><span class="line">                session.setTimeout(APP_EXPIRE_TIME * <span class="number">1000</span>);</span><br><span class="line">                <span class="keyword">if</span> (logger.isDebugEnabled()) &#123;</span><br><span class="line">                    logger.debug(<span class="string">"read app session ,sessionId is :&#123;&#125;"</span>,</span><br><span class="line">                            sessionId.toString());</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> session;</span><br><span class="line">&#125;</span><br><span class="line"><span class="meta">@Override</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">update</span><span class="params">(Session session)</span> <span class="keyword">throws</span> UnknownSessionException </span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (<span class="keyword">null</span> != session &amp;&amp; <span class="keyword">null</span> != session.getId()) &#123;</span><br><span class="line">        String deviceType = (String) session</span><br><span class="line">                .getAttribute(SessionCons.DEVICE_TYPE);</span><br><span class="line">        <span class="keyword">if</span> (StringHelpUtils.isBlank(deviceType))</span><br><span class="line">            deviceType = DeviceType.PC.toString();</span><br><span class="line">        redisTemplate.opsForValue().set(session.getId(), session);</span><br><span class="line">        <span class="keyword">if</span> (deviceType.equals(DeviceType.PC.toString())) &#123;</span><br><span class="line">            <span class="comment">// PC会话信息</span></span><br><span class="line">            session.setTimeout(PC_EXPIRE_TIME * <span class="number">1000</span>);</span><br><span class="line">            redisTemplate.expire(session.getId(), PC_EXPIRE_TIME,</span><br><span class="line">                    TimeUnit.SECONDS);</span><br><span class="line">            <span class="keyword">if</span> (logger.isDebugEnabled()) &#123;</span><br><span class="line">                logger.debug(<span class="string">"update pc session ,sessionId is :&#123;&#125;"</span>, session</span><br><span class="line">                        .getId().toString());</span><br><span class="line">            &#125;</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            <span class="comment">// APP会话信息</span></span><br><span class="line">            session.setTimeout(APP_EXPIRE_TIME * <span class="number">1000</span>);</span><br><span class="line">            redisTemplate.expire(session.getId(), APP_EXPIRE_TIME,</span><br><span class="line">                    TimeUnit.SECONDS);</span><br><span class="line">            <span class="keyword">if</span> (logger.isDebugEnabled()) &#123;</span><br><span class="line">                logger.debug(<span class="string">"update app session ,sessionId is :&#123;&#125;"</span>,</span><br><span class="line">                        session.getId().toString());</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="meta">@Override</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">delete</span><span class="params">(Session session)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (logger.isDebugEnabled()) &#123;</span><br><span class="line">        logger.debug(<span class="string">"delete shiro session ,sessionId is :&#123;&#125;"</span>, session</span><br><span class="line">                .getId().toString());</span><br><span class="line">    &#125;</span><br><span class="line">    redisTemplate.opsForValue().getOperations().delete(session.getId());</span><br><span class="line">&#125;</span><br><span class="line"><span class="meta">@Override</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> Collection&lt;Session&gt; <span class="title">getActiveSessions</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    Set&lt;Serializable&gt; keys = redisTemplate</span><br><span class="line">            .keys(SessionCons.TOKEN_PREFIX_KEY);</span><br><span class="line">    <span class="keyword">if</span> (keys.size() == <span class="number">0</span>) &#123;</span><br><span class="line">        <span class="keyword">return</span> Collections.emptySet();</span><br><span class="line">    &#125;</span><br><span class="line">    List&lt;Session&gt; sessions = redisTemplate.opsForValue().multiGet(keys);</span><br><span class="line">    <span class="keyword">return</span> Collections.unmodifiableCollection(sessions);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>然后是在shiro的配置类中配置自定义的sessionDAO.<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Bean</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> RedisSessionDao <span class="title">redisSessionDAO</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">new</span> RedisSessionDao();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>设置shiro的会话管理器.<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Bean</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> CustomerWebSessionManager <span class="title">sessionManager</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    CustomerWebSessionManager sessionManager = <span class="keyword">new</span> CustomerWebSessionManager();</span><br><span class="line">    sessionManager.setSessionDAO(redisSessionDAO());</span><br><span class="line">    ......</span><br><span class="line">    <span class="keyword">return</span> sessionManager;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>接着定义一个会话常量类SessionCons,内部包含会话key前缀等系统常量.<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">String LOGIN_USER_PERMISSIONS = <span class="string">"session_login_user_permissions"</span>;</span><br><span class="line">String LOGIN_USER_SESSION = <span class="string">"session_login_user"</span>;</span><br><span class="line">String TOKEN_PREFIX = <span class="string">"web_session_key-"</span>;</span><br><span class="line">String TOKEN_PREFIX_KEY = <span class="string">"web_session_key-*"</span>;</span><br><span class="line">String DEVICE_TYPE = <span class="string">"device_type"</span>;</span><br><span class="line">......</span><br></pre></td></tr></table></figure></p>
+<p>最后在用户登录之后的时候就可以把相关的用户session信息和权限数据存储到redis中了.<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">subject.getSession().setAttribute(SessionCons.LOGIN_USER_SESSION,loginAccinfo);</span><br><span class="line">subject.getSession().setAttribute(SessionCons.DEVICE_TYPE,DeviceTypePC.toString());</span><br><span class="line">subject.getSession().setAttribute(SessionCons.LOGIN_USER_PERMISSIONS, permissions);</span><br><span class="line">......</span><br></pre></td></tr></table></figure></p>
+<p>到此我们已经在之前的框架基础上实现了分布式session管理了.</p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/架构/" rel="tag"># 架构</a>
+          
+            <a href="/tags/SpringBoot/" rel="tag"># SpringBoot</a>
+          
+            <a href="/tags/Shiro/" rel="tag"># Shiro</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2018/05/07/SpringBoot集成Shiro实现多数据源认证授权与分布式会话(二)/" rel="next" title="SpringBoot集成Shiro实现多数据源认证授权与分布式会话(二)">
+                <i class="fa fa-chevron-left"></i> SpringBoot集成Shiro实现多数据源认证授权与分布式会话(二)
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image"
+                src="/uploads/images/avatar.jpg"
+                alt="William.zhang" />
+            
+              <p class="site-author-name" itemprop="name">William.zhang</p>
+              <p class="site-description motion-element" itemprop="description">纸上得来终觉浅，绝知此事要躬行</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">9</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">11</span>
+                  <span class="site-state-item-name">分类</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">14</span>
+                  <span class="site-state-item-name">标签</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+            <div class="links-of-blogroll motion-element links-of-blogroll-inline">
+              <div class="links-of-blogroll-title">
+                <i class="fa  fa-fw fa-link"></i>
+                Links
+              </div>
+              <ul class="links-of-blogroll-list">
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="https://www.jianshu.com/u/ab57f4fbcce3" title="我的简书" target="_blank">我的简书</a>
+                  </li>
+                
+              </ul>
+            </div>
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#前言"><span class="nav-number">1.</span> <span class="nav-text">前言</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#session与cookie"><span class="nav-number">2.</span> <span class="nav-text">session与cookie</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#什么是session共享"><span class="nav-number">3.</span> <span class="nav-text">什么是session共享</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#session一致性解决方案"><span class="nav-number">4.</span> <span class="nav-text">session一致性解决方案</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#shiro如何结合redis实现session共享"><span class="nav-number">5.</span> <span class="nav-text">shiro如何结合redis实现session共享</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2018</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">William.zhang</span>
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Pisces</a> v5.1.4</div>
+
+
+
+<span id="busuanzi_container_site_uv">
+  本站访客数<span id="busuanzi_value_site_uv"></span>人次
+</span>
+<span id="busuanzi_container_page_pv">
+  本文总阅读量<span id="busuanzi_value_page_pv"></span>次
+</span>
+<script async src="//dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.4"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
