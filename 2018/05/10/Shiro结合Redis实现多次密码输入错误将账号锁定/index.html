@@ -1,0 +1,860 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="架构,SpringBoot,Shiro," />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="场景描述项目中有这样一个需求,限制用户连续登录失败次数,比如登录失败10次之后开始锁定账号30分钟,等30分钟后可再次尝试登录,超时或者登录成功则从0开始计数.下面我们看看如何使用shiro+redis来实现这个功能. 源码分析按照一般的思维模式,当我们一开始看到这样的功能场景的时候首先想到的肯定是在业务层面上来解决这个需求,事实上也是可行的,只要定义一个全局的支持原子操作的Integer变量负责">
+<meta name="keywords" content="架构,SpringBoot,Shiro">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Shiro结合Redis实现多次密码输入错误将账号锁定">
+<meta property="og:url" content="http://yoursite.com/2018/05/10/Shiro结合Redis实现多次密码输入错误将账号锁定/index.html">
+<meta property="og:site_name" content="William-zzw">
+<meta property="og:description" content="场景描述项目中有这样一个需求,限制用户连续登录失败次数,比如登录失败10次之后开始锁定账号30分钟,等30分钟后可再次尝试登录,超时或者登录成功则从0开始计数.下面我们看看如何使用shiro+redis来实现这个功能. 源码分析按照一般的思维模式,当我们一开始看到这样的功能场景的时候首先想到的肯定是在业务层面上来解决这个需求,事实上也是可行的,只要定义一个全局的支持原子操作的Integer变量负责">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:updated_time" content="2018-05-10T17:16:54.505Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Shiro结合Redis实现多次密码输入错误将账号锁定">
+<meta name="twitter:description" content="场景描述项目中有这样一个需求,限制用户连续登录失败次数,比如登录失败10次之后开始锁定账号30分钟,等30分钟后可再次尝试登录,超时或者登录成功则从0开始计数.下面我们看看如何使用shiro+redis来实现这个功能. 源码分析按照一般的思维模式,当我们一开始看到这样的功能场景的时候首先想到的肯定是在业务层面上来解决这个需求,事实上也是可行的,只要定义一个全局的支持原子操作的Integer变量负责">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: 'William-zzw'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2018/05/10/Shiro结合Redis实现多次密码输入错误将账号锁定/"/>
+
+
+
+
+
+  <title>Shiro结合Redis实现多次密码输入错误将账号锁定 | William-zzw</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">William-zzw</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/05/10/Shiro结合Redis实现多次密码输入错误将账号锁定/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="William.zhang">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/uploads/images/avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="William-zzw">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">Shiro结合Redis实现多次密码输入错误将账号锁定</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-05-10T21:45:57+08:00">
+                2018-05-10
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/架构/" itemprop="url" rel="index">
+                    <span itemprop="name">架构</span>
+                  </a>
+                </span>
+
+                
+                
+                  ， 
+                
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/架构/SpringBoot/" itemprop="url" rel="index">
+                    <span itemprop="name">SpringBoot</span>
+                  </a>
+                </span>
+
+                
+                
+                  ， 
+                
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/架构/SpringBoot/Shiro/" itemprop="url" rel="index">
+                    <span itemprop="name">Shiro</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+            <span class="post-meta-divider">|</span>
+            <span class="page-pv"><i class="fa fa-file-o"></i> 浏览
+            <span class="busuanzi-value" id="busuanzi_value_page_pv" ></span>次
+            </span>
+          
+
+          
+            <div class="post-wordcount">
+              
+                
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-file-word-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">字数统计&#58;</span>
+                
+                <span title="字数统计">
+                  2,824 字
+                </span>
+              
+
+              
+                <span class="post-meta-divider">|</span>
+              
+
+              
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-clock-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">阅读时长 &asymp;</span>
+                
+                <span title="阅读时长">
+                  13 分钟
+                </span>
+              
+            </div>
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h1 id="场景描述"><a href="#场景描述" class="headerlink" title="场景描述"></a>场景描述</h1><p>项目中有这样一个需求,限制用户连续登录失败次数,比如登录失败10次之后开始锁定账号30分钟,等30分钟后可再次尝试登录,超时或者登录成功则从0开始计数.下面我们看看如何使用shiro+redis来实现这个功能.</p>
+<h1 id="源码分析"><a href="#源码分析" class="headerlink" title="源码分析"></a>源码分析</h1><p>按照一般的思维模式,当我们一开始看到这样的功能场景的时候首先想到的肯定是在业务层面上来解决这个需求,事实上也是可行的,只要定义一个全局的支持原子操作的Integer变量负责记录登录错误次数,一旦计数超过最大的次数限制,程序抛出异常提示即可,实现上可使用本地cache也可使用数据库或者redis来存储中间变量,具体的就不展开讨论了,因为在这里我们主要要介绍的是一种利用shiro内部身份认证的机制来灵活完成这个需求的方式.<br>那么到底如何实现呢,第一步应该先来了解下shiro的认证流程,我们可以通过在PC端后台login这个入口一步步的跟踪shiro的源码来窥探整个认证的过程.<br>当我们在业务controller层调用subject.login(token);进行登录时,subject实际上是个顶层接口,真正调用的是它的实现类org.apache.shiro.subject.support.DelegatingSubject中的login方法.<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">login</span><span class="params">(AuthenticationToken token)</span> <span class="keyword">throws</span> AuthenticationException </span>&#123;</span><br><span class="line">    clearRunAsIdentitiesInternal();</span><br><span class="line">    Subject subject = securityManager.login(<span class="keyword">this</span>, token);</span><br><span class="line">    PrincipalCollection principals;</span><br><span class="line">    String host = <span class="keyword">null</span>;</span><br><span class="line">    <span class="keyword">if</span> (subject <span class="keyword">instanceof</span> DelegatingSubject) &#123;</span><br><span class="line">        DelegatingSubject delegating = (DelegatingSubject) subject;</span><br><span class="line">        <span class="comment">//we have to do this in case there are assumed identities - we don't want to lose the 'real' principals:</span></span><br><span class="line">        principals = delegating.principals;</span><br><span class="line">        host = delegating.host;</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        principals = subject.getPrincipals();</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span> (principals == <span class="keyword">null</span> || principals.isEmpty()) &#123;</span><br><span class="line">        String msg = <span class="string">"Principals returned from securityManager.login( token ) returned a null or "</span> +</span><br><span class="line">                <span class="string">"empty value.  This value must be non null and populated with one or more elements."</span>;</span><br><span class="line">        <span class="keyword">throw</span> <span class="keyword">new</span> IllegalStateException(msg);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">this</span>.principals = principals;</span><br><span class="line">    <span class="keyword">this</span>.authenticated = <span class="keyword">true</span>;</span><br><span class="line">    <span class="keyword">if</span> (token <span class="keyword">instanceof</span> HostAuthenticationToken) &#123;</span><br><span class="line">        host = ((HostAuthenticationToken) token).getHost();</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span> (host != <span class="keyword">null</span>) &#123;</span><br><span class="line">        <span class="keyword">this</span>.host = host;</span><br><span class="line">    &#125;</span><br><span class="line">    Session session = subject.getSession(<span class="keyword">false</span>);</span><br><span class="line">    <span class="keyword">if</span> (session != <span class="keyword">null</span>) &#123;</span><br><span class="line">        <span class="keyword">this</span>.session = decorate(session);</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        <span class="keyword">this</span>.session = <span class="keyword">null</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>从源代码中的第3行我们可以看到其自动委托给SecurityManager.login进行登录,跟踪下来我们会发现这个方法调用的是org.apache.shiro.mgt.DefaultSecurityManager类中的login函数.<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> Subject <span class="title">login</span><span class="params">(Subject subject, AuthenticationToken token)</span> <span class="keyword">throws</span> AuthenticationException </span>&#123;</span><br><span class="line">    AuthenticationInfo info;</span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">        info = authenticate(token);</span><br><span class="line">    &#125; <span class="keyword">catch</span> (AuthenticationException ae) &#123;</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            onFailedLogin(token, ae, subject);</span><br><span class="line">        &#125; <span class="keyword">catch</span> (Exception e) &#123;</span><br><span class="line">            <span class="keyword">if</span> (log.isInfoEnabled()) &#123;</span><br><span class="line">                log.info(<span class="string">"onFailedLogin method threw an "</span> +</span><br><span class="line">                        <span class="string">"exception.  Logging and propagating original AuthenticationException."</span>, e);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">throw</span> ae; <span class="comment">//propagate</span></span><br><span class="line">    &#125;</span><br><span class="line">    Subject loggedIn = createSubject(token, info, subject);</span><br><span class="line">    onSuccessfulLogin(token, info, loggedIn);</span><br><span class="line">    <span class="keyword">return</span> loggedIn;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>注意看第4行,这里SecurityManager负责身份验证逻辑,继续跟下去可以看到这一行调的是org.apache.shiro.mgt.AuthenticatingSecurityManager类中的authenticate方法.<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">private</span> Authenticator authenticator;</span><br><span class="line">......</span><br><span class="line"><span class="function"><span class="keyword">public</span> AuthenticationInfo <span class="title">authenticate</span><span class="params">(AuthenticationToken token)</span> <span class="keyword">throws</span> AuthenticationException </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">this</span>.authenticator.authenticate(token);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>从这里也可以看出SecurityManager会委托给Authenticator做身份认证,它才是shiro中的核心身份验证者,接下来我们继续往下看this.authenticator.authenticate(token);调的是Authenticator的实现类org.apache.shiro.authc.AbstractAuthenticator中的authenticate方法.<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">final</span> AuthenticationInfo <span class="title">authenticate</span><span class="params">(AuthenticationToken token)</span> <span class="keyword">throws</span> AuthenticationException </span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (token == <span class="keyword">null</span>) &#123;</span><br><span class="line">        <span class="keyword">throw</span> <span class="keyword">new</span> IllegalArgumentException(<span class="string">"Method argument (authentication token) cannot be null."</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    log.trace(<span class="string">"Authentication attempt received for token [&#123;&#125;]"</span>, token);</span><br><span class="line">    AuthenticationInfo info;</span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">        info = doAuthenticate(token);</span><br><span class="line">        <span class="keyword">if</span> (info == <span class="keyword">null</span>) &#123;</span><br><span class="line">            String msg = <span class="string">"No account information found for authentication token ["</span> + token + <span class="string">"] by this "</span> +</span><br><span class="line">                    <span class="string">"Authenticator instance.  Please check that it is configured correctly."</span>;</span><br><span class="line">            <span class="keyword">throw</span> <span class="keyword">new</span> AuthenticationException(msg);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125; <span class="keyword">catch</span> (Throwable t) &#123;</span><br><span class="line">        AuthenticationException ae = <span class="keyword">null</span>;</span><br><span class="line">        <span class="keyword">if</span> (t <span class="keyword">instanceof</span> AuthenticationException) &#123;</span><br><span class="line">            ae = (AuthenticationException) t;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">if</span> (ae == <span class="keyword">null</span>) &#123;</span><br><span class="line">            <span class="comment">//Exception thrown was not an expected AuthenticationException.  Therefore it is probably a little more</span></span><br><span class="line">            <span class="comment">//severe or unexpected.  So, wrap in an AuthenticationException, log to warn, and propagate:</span></span><br><span class="line">            String msg = <span class="string">"Authentication failed for token submission ["</span> + token + <span class="string">"].  Possible unexpected "</span> +</span><br><span class="line">                    <span class="string">"error? (Typical or expected login exceptions should extend from AuthenticationException)."</span>;</span><br><span class="line">            ae = <span class="keyword">new</span> AuthenticationException(msg, t);</span><br><span class="line">            <span class="keyword">if</span> (log.isWarnEnabled())</span><br><span class="line">                log.warn(msg, t);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            notifyFailure(token, ae);</span><br><span class="line">        &#125; <span class="keyword">catch</span> (Throwable t2) &#123;</span><br><span class="line">            <span class="keyword">if</span> (log.isWarnEnabled()) &#123;</span><br><span class="line">                String msg = <span class="string">"Unable to send notification for failed authentication attempt - listener error?.  "</span> +</span><br><span class="line">                        <span class="string">"Please check your AuthenticationListener implementation(s).  Logging sending exception "</span> +</span><br><span class="line">                        <span class="string">"and propagating original AuthenticationException instead..."</span>;</span><br><span class="line">                log.warn(msg, t2);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">throw</span> ae;</span><br><span class="line">    &#125;</span><br><span class="line">    log.debug(<span class="string">"Authentication successful for token [&#123;&#125;].  Returned account [&#123;&#125;]"</span>, token, info);</span><br><span class="line">    notifySuccess(token, info);</span><br><span class="line">    <span class="keyword">return</span> info;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">protected</span> <span class="keyword">abstract</span> AuthenticationInfo <span class="title">doAuthenticate</span><span class="params">(AuthenticationToken token)</span></span></span><br><span class="line"><span class="function">        <span class="keyword">throws</span> AuthenticationException</span>;</span><br></pre></td></tr></table></figure></p>
+<p>重点看第8行调用的当前类中的抽象方法doAuthenticate,通过调用链跟踪可以找到抽象类AbstractAuthenticator的实现类是org.apache.shiro.authc.pam.ModularRealmAuthenticators,我们来继续看看它的实现方法doAuthenticate.<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">protected</span> AuthenticationInfo <span class="title">doAuthenticate</span><span class="params">(AuthenticationToken authenticationToken)</span> <span class="keyword">throws</span> AuthenticationException </span>&#123;</span><br><span class="line">    assertRealmsConfigured();</span><br><span class="line">    Collection&lt;Realm&gt; realms = getRealms();</span><br><span class="line">    <span class="keyword">if</span> (realms.size() == <span class="number">1</span>) &#123;</span><br><span class="line">        <span class="keyword">return</span> doSingleRealmAuthentication(realms.iterator().next(), authenticationToken);</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> doMultiRealmAuthentication(realms, authenticationToken);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>由于我们在框架中自定义了认证器CustomizedModularRealmAuthenticator类,它继承自父类ModularRealmAuthenticators,所以这里实际上执行的是我们覆写父类的doAuthenticate方法.<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * 重写doAuthenticate让APP帐号和PC帐号自动使用各自的Realm</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="meta">@Override</span></span><br><span class="line"><span class="function"><span class="keyword">protected</span> AuthenticationInfo <span class="title">doAuthenticate</span><span class="params">(</span></span></span><br><span class="line"><span class="function"><span class="params">        AuthenticationToken authenticationToken)</span></span></span><br><span class="line"><span class="function">        <span class="keyword">throws</span> AuthenticationException </span>&#123;</span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 判断getRealms()是否返回为空</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">this</span>.assertRealmsConfigured();</span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 强制转换回自定义的CustomizedUsernamePasswordToken</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    CustomizedUsernamePasswordToken customizedToken = (CustomizedUsernamePasswordToken) authenticationToken;</span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 登录设备类型</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    String deviceType = customizedToken.getDeviceType();</span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 所有自定义的Realm</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    Collection&lt;Realm&gt; customerRealms = <span class="keyword">this</span>.getRealms();</span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 登录设备类型对应的所有自定义Realm</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    Collection&lt;Realm&gt; deviceRealms = <span class="keyword">new</span> ArrayList&lt;&gt;();</span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 这里所有自定义的Realm的Name必须包含相对应的设备名</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">for</span> (Realm realm : customerRealms) &#123;</span><br><span class="line">        <span class="keyword">if</span> (realm.getName().contains(deviceType))</span><br><span class="line">            deviceRealms.add(realm);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 判断是单Realm还是多Realm</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">if</span> (deviceRealms.size() == <span class="number">1</span>)</span><br><span class="line">        <span class="keyword">return</span> doSingleRealmAuthentication(deviceRealms.iterator().next(),</span><br><span class="line">                customizedToken);</span><br><span class="line">    <span class="keyword">else</span></span><br><span class="line">        <span class="keyword">return</span> doMultiRealmAuthentication(deviceRealms, customizedToken);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>从代码注释可知devieRealms就是我们自定义的数据源realm集合,程序往下跑就是if分支中的doSingleRealmAuthentication(deviceRealms.iterator().next(),<br>                    customizedToken);我们并没有覆写这个函数的实现,它执行的依然是它的父类的实现.<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">protected</span> AuthenticationInfo <span class="title">doSingleRealmAuthentication</span><span class="params">(Realm realm, AuthenticationToken token)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (!realm.supports(token)) &#123;</span><br><span class="line">        String msg = <span class="string">"Realm ["</span> + realm + <span class="string">"] does not support authentication token ["</span> +</span><br><span class="line">                token + <span class="string">"].  Please ensure that the appropriate Realm implementation is "</span> +</span><br><span class="line">                <span class="string">"configured correctly or that the realm accepts AuthenticationTokens of this type."</span>;</span><br><span class="line">        <span class="keyword">throw</span> <span class="keyword">new</span> UnsupportedTokenException(msg);</span><br><span class="line">    &#125;</span><br><span class="line">    AuthenticationInfo info = realm.getAuthenticationInfo(token);</span><br><span class="line">    <span class="keyword">if</span> (info == <span class="keyword">null</span>) &#123;</span><br><span class="line">        String msg = <span class="string">"Realm ["</span> + realm + <span class="string">"] was unable to find account data for the "</span> +</span><br><span class="line">                <span class="string">"submitted AuthenticationToken ["</span> + token + <span class="string">"]."</span>;</span><br><span class="line">        <span class="keyword">throw</span> <span class="keyword">new</span> UnknownAccountException(msg);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> info;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>看代码第8行中的AuthenticationInfo info = realm.getAuthenticationInfo(token);这里的realm就是我们程序自定义的数据源PcShiroRealm,此函数执行时会先调用当前realm的间接父类org.apache.shiro.realm.AuthenticatingRealm中的对应实现方法,来看看里面的源代码.<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">final</span> AuthenticationInfo <span class="title">getAuthenticationInfo</span><span class="params">(AuthenticationToken token)</span> <span class="keyword">throws</span> AuthenticationException </span>&#123;</span><br><span class="line">    AuthenticationInfo info = getCachedAuthenticationInfo(token);</span><br><span class="line">    <span class="keyword">if</span> (info == <span class="keyword">null</span>) &#123;</span><br><span class="line">        <span class="comment">//otherwise not cached, perform the lookup:</span></span><br><span class="line">        info = doGetAuthenticationInfo(token);</span><br><span class="line">        log.debug(<span class="string">"Looked up AuthenticationInfo [&#123;&#125;] from doGetAuthenticationInfo"</span>, info);</span><br><span class="line">        <span class="keyword">if</span> (token != <span class="keyword">null</span> &amp;&amp; info != <span class="keyword">null</span>) &#123;</span><br><span class="line">            cacheAuthenticationInfoIfPossible(token, info);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        log.debug(<span class="string">"Using cached authentication info [&#123;&#125;] to perform credentials matching."</span>, info);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span> (info != <span class="keyword">null</span>) &#123;</span><br><span class="line">        assertCredentialsMatch(token, info);</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        log.debug(<span class="string">"No AuthenticationInfo found for submitted AuthenticationToken [&#123;&#125;].  Returning null."</span>, token);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> info;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>其中的第5行info = doGetAuthenticationInfo(token);会调用我们自定义的PcShiroRealm中覆写的doGetAuthenticationInfo方法,这个方法是真正实现用户认证的方法,下面看看我们自己的认证实现.<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * PC端账户认证信息(登录认证)</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="meta">@Override</span></span><br><span class="line"><span class="function"><span class="keyword">protected</span> AuthenticationInfo <span class="title">doGetAuthenticationInfo</span><span class="params">(</span></span></span><br><span class="line"><span class="function"><span class="params">        AuthenticationToken authenticationToken)</span></span></span><br><span class="line"><span class="function">        <span class="keyword">throws</span> AuthenticationException </span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (logger.isDebugEnabled()) &#123;</span><br><span class="line">        logger.debug(<span class="string">"PC端账户登录认证"</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">//强制转换authenticationToken为自定义token</span></span><br><span class="line">    CustomizedUsernamePasswordToken token = (CustomizedUsernamePasswordToken) authenticationToken;</span><br><span class="line">    <span class="comment">//从token中取出登录用户名</span></span><br><span class="line">    String loginName = (String) token.getPrincipal();</span><br><span class="line">    <span class="comment">//根据登录用户名从数据库查看账户信息</span></span><br><span class="line">    UserModel sysUser = userService.queryByLoginName(loginName);</span><br><span class="line">    <span class="keyword">if</span> (<span class="keyword">null</span> == sysUser) &#123;</span><br><span class="line">        <span class="keyword">throw</span> <span class="keyword">new</span> UnknownAccountException(<span class="string">"PC端不存在此账户！"</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">//构造AuthenticationInfo对象</span></span><br><span class="line">    AuthenticationInfo authenticationInfo = <span class="keyword">new</span> SimpleAuthenticationInfo(</span><br><span class="line">            loginName, sysUser.getUserPassword(),</span><br><span class="line">            ByteSource.Util.bytes(sysUser.getSalt()), getName());</span><br><span class="line">    <span class="keyword">return</span> authenticationInfo;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>当我们构造完AuthenticationInfo对象后交给间接父类AuthenticatingRealm,然后再到源码的第14行assertCredentialsMatch(token, info);这个断言函数的定义也在AuthenticatingRealm这个类中.<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">assertCredentialsMatch</span><span class="params">(AuthenticationToken token, AuthenticationInfo info)</span> <span class="keyword">throws</span> AuthenticationException </span>&#123;</span><br><span class="line">    CredentialsMatcher cm = getCredentialsMatcher();</span><br><span class="line">    <span class="keyword">if</span> (cm != <span class="keyword">null</span>) &#123;</span><br><span class="line">        <span class="keyword">if</span> (!cm.doCredentialsMatch(token, info)) &#123;</span><br><span class="line">            <span class="comment">//not successful - throw an exception to indicate this:</span></span><br><span class="line">            String msg = <span class="string">"Submitted credentials for token ["</span> + token + <span class="string">"] did not match the expected credentials."</span>;</span><br><span class="line">            <span class="keyword">throw</span> <span class="keyword">new</span> IncorrectCredentialsException(msg);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        <span class="keyword">throw</span> <span class="keyword">new</span> AuthenticationException(<span class="string">"A CredentialsMatcher must be configured in order to verify "</span> +</span><br><span class="line">                <span class="string">"credentials during authentication.  If you do not wish for credentials to be examined, you "</span> +</span><br><span class="line">                <span class="string">"can configure an "</span> + AllowAllCredentialsMatcher.class.getName() + <span class="string">" instance."</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>好了,源码走到这里我们已经知道CredentialsMatcher其实是shiro内部提供的验证密码的服务类,它是一个顶层接口,并且shiro还提供了它的一个散列实现HashedCredentialsMatcher,接口中只定义了一个方法doCredentialsMatch,从第4行的if分支判断可以看到当密码凭证匹配不通过时程序会抛出IncorrectCredentialsException异常.那么很显然doCredentialsMatch这个函数就是用来验证用户提供的账号凭证与系统存储的账号凭证是否匹配的,所以我们就可以在这个函数的内部做文章了,通过对类进行扩展就可以实现在shiro执行凭证校验的同时切入自己的业务逻辑了.</p>
+<h1 id="最终实现"><a href="#最终实现" class="headerlink" title="最终实现"></a>最终实现</h1><p>一起来看看最终实现方式:自定义我们自己的凭证匹配器类CustomerMatcher,它继承自父类org.apache.shiro.authc.credential.HashedCredentialsMatcher,然后就是覆盖父类的doCredentialsMatch方法开发我们自己的业务逻辑了,主要代码如下:<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Override</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">doCredentialsMatch</span><span class="params">(AuthenticationToken token, AuthenticationInfo info)</span> </span>&#123;</span><br><span class="line">    CustomizedUsernamePasswordToken customizedToken = (CustomizedUsernamePasswordToken) token;</span><br><span class="line">    String loginName = (String) customizedToken.getPrincipal();<span class="comment">//获取登录用户名</span></span><br><span class="line">    Integer fromType = customizedToken.getFromType();<span class="comment">//登录类型</span></span><br><span class="line">    AtomicInteger errorNum = <span class="keyword">new</span> AtomicInteger(<span class="number">0</span>);<span class="comment">//初始化错误登录次数</span></span><br><span class="line">    <span class="keyword">if</span> (fromType == <span class="number">1</span>) &#123;<span class="comment">//手机账号登录</span></span><br><span class="line">        String value = JedisUtils.get(<span class="string">"login:error:"</span> + loginName);<span class="comment">//获取错误登录的次数</span></span><br><span class="line">        <span class="keyword">if</span> (StringHelpUtils.isNotBlank(value)) &#123;</span><br><span class="line">            errorNum = <span class="keyword">new</span> AtomicInteger(Integer.parseInt(value));</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">if</span> (errorNum.get() &gt;= <span class="number">10</span>) &#123;  <span class="comment">//如果用户错误登录次数超过十次</span></span><br><span class="line">            <span class="keyword">throw</span> <span class="keyword">new</span> ExcessiveAttemptsException(); <span class="comment">//抛出账号锁定异常类</span></span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">boolean</span> matches = <span class="keyword">super</span>.doCredentialsMatch(customizedToken, info);    <span class="comment">//判断用户是否可用，即是否为正确的账号密码</span></span><br><span class="line">    <span class="keyword">if</span> (fromType == <span class="number">1</span>) &#123;<span class="comment">//手机账号登录</span></span><br><span class="line">        <span class="keyword">if</span> (matches) &#123;</span><br><span class="line">            JedisUtils.delete(<span class="string">"login:error:"</span> + loginName);<span class="comment">//移除缓存中用户的错误登录次数</span></span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            <span class="comment">//存储错误次数到redis中</span></span><br><span class="line">            JedisUtils.setEx(<span class="string">"login:error:"</span> + loginName, <span class="number">1800</span>, errorNum.incrementAndGet() + <span class="string">""</span>);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> matches;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>程序利用redis来存储错误的登录次数,并设置key的失效时间为30分钟,一旦缓存过期或者用户登录成功则清空存储记录,重新计数,另外shiro提供了身份认证失败异常类AuthenticationException及其子类,我们使用了其中一个子类ExcessiveAttemptsException(表示登录失败次数过多).当程序抛出这个异常时,需要在业务controller层显示的去捕获它.<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">&#125; <span class="keyword">catch</span> (ExcessiveAttemptsException e1) &#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">new</span> ResponseEntity().isOk(HttpStatus.ERROR_LOGIN_LOCK);</span><br><span class="line">&#125; <span class="keyword">catch</span> (AuthenticationException e) &#123;</span><br><span class="line">      <span class="keyword">return</span> <span class="keyword">new</span> ResponseEntity().isOk(HttpStatus.LOGIN_ERROR);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>最后我们还需要在shiro的配置类中引入自定义的凭证匹配器CustomerMatcher,这样子才会生效.<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/*</span></span><br><span class="line"><span class="comment"> * @describe 自定义凭证匹配器</span></span><br><span class="line"><span class="comment"> * （由于我们的密码校验交给Shiro的SimpleAuthenticationInfo进行处理了所以我们需要修改下doGetAuthenticationInfo中的代码）</span></span><br><span class="line"><span class="comment"> * 可以扩展凭证匹配器，实现输入密码错误次数后锁定等功能</span></span><br><span class="line"><span class="comment"> * @return org.apache.shiro.authc.credential.HashedCredentialsMatcher</span></span><br><span class="line"><span class="comment">*/</span></span><br><span class="line"><span class="meta">@Bean</span>(name = <span class="string">"credentialsMatcher"</span>)</span><br><span class="line"><span class="function"><span class="keyword">public</span> CustomerMatcher <span class="title">hashedCredentialsMatcher</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    CustomerMatcher hashedCredentialsMatcher = <span class="keyword">new</span> CustomerMatcher();</span><br><span class="line">    hashedCredentialsMatcher.setHashAlgorithmName(<span class="string">"md5"</span>);<span class="comment">//散列算法:这里使用MD5算法;</span></span><br><span class="line">    hashedCredentialsMatcher.setHashIterations(<span class="number">2</span>);<span class="comment">//散列的次数，比如散列两次，相当于 md5(md5(""));</span></span><br><span class="line">    <span class="comment">//storedCredentialsHexEncoded默认是true，此时用的是密码加密用的是Hex编码；false时用Base64编码</span></span><br><span class="line">    <span class="comment">// hashedCredentialsMatcher.setStoredCredentialsHexEncoded(true);</span></span><br><span class="line">    <span class="keyword">return</span> hashedCredentialsMatcher;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/架构/" rel="tag"># 架构</a>
+          
+            <a href="/tags/SpringBoot/" rel="tag"># SpringBoot</a>
+          
+            <a href="/tags/Shiro/" rel="tag"># Shiro</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2018/05/08/SpringBoot集成Shiro实现多数据源认证授权与分布式会话(三)/" rel="next" title="SpringBoot集成Shiro实现多数据源认证授权与分布式会话(三)">
+                <i class="fa fa-chevron-left"></i> SpringBoot集成Shiro实现多数据源认证授权与分布式会话(三)
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image"
+                src="/uploads/images/avatar.jpg"
+                alt="William.zhang" />
+            
+              <p class="site-author-name" itemprop="name">William.zhang</p>
+              <p class="site-description motion-element" itemprop="description">纸上得来终觉浅，绝知此事要躬行</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">10</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">11</span>
+                  <span class="site-state-item-name">分类</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">14</span>
+                  <span class="site-state-item-name">标签</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+            <div class="links-of-blogroll motion-element links-of-blogroll-inline">
+              <div class="links-of-blogroll-title">
+                <i class="fa  fa-fw fa-link"></i>
+                Links
+              </div>
+              <ul class="links-of-blogroll-list">
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="https://www.jianshu.com/u/ab57f4fbcce3" title="我的简书" target="_blank">我的简书</a>
+                  </li>
+                
+              </ul>
+            </div>
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#场景描述"><span class="nav-number">1.</span> <span class="nav-text">场景描述</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#源码分析"><span class="nav-number">2.</span> <span class="nav-text">源码分析</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#最终实现"><span class="nav-number">3.</span> <span class="nav-text">最终实现</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2018</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">William.zhang</span>
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Pisces</a> v5.1.4</div>
+
+
+
+<span id="busuanzi_container_site_uv">
+  本站访客数<span id="busuanzi_value_site_uv"></span>人次
+</span>
+<span id="busuanzi_container_page_pv">
+  本文总阅读量<span id="busuanzi_value_page_pv"></span>次
+</span>
+<script async src="//dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+        
+<div class="busuanzi-count">
+  <script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+    <span class="site-uv">
+      <i class="fa fa-user"></i> 访问人数
+      <span class="busuanzi-value" id="busuanzi_value_site_uv"></span>
+      
+    </span>
+  
+
+  
+    <span class="site-pv">
+      <i class="fa fa-eye"></i> 总访问量
+      <span class="busuanzi-value" id="busuanzi_value_site_pv"></span>
+      次
+    </span>
+  
+</div>
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.4"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
