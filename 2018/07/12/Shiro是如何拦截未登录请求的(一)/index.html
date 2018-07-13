@@ -82,8 +82,8 @@
 <meta name="description" content="问题描述之前在公司搭项目平台的时候权限框架采用的是shiro,由于系统主要面向的是APP端的用户,PC端仅仅公司内部人员使用,而且考虑到系统的可用性和扩展性,服务端首先基于shiro做了一些改造以支持多数据源认证和分布式会话,具体可查看前面的文章.我们知道在web环境下http是一种无状态的通讯协议,要想记录和校验用户的登录状态必须通过session的机制来实现,浏览器通过cookie中存储的se">
 <meta name="keywords" content="Shiro,Filter">
 <meta property="og:type" content="article">
-<meta property="og:title" content="Shiro是如何拦截未登录请求的">
-<meta property="og:url" content="http://yoursite.com/2018/07/12/Shiro是如何拦截未登录请求的/index.html">
+<meta property="og:title" content="Shiro是如何拦截未登录请求的(一)">
+<meta property="og:url" content="http://yoursite.com/2018/07/12/Shiro是如何拦截未登录请求的(一)/index.html">
 <meta property="og:site_name" content="william-zzw">
 <meta property="og:description" content="问题描述之前在公司搭项目平台的时候权限框架采用的是shiro,由于系统主要面向的是APP端的用户,PC端仅仅公司内部人员使用,而且考虑到系统的可用性和扩展性,服务端首先基于shiro做了一些改造以支持多数据源认证和分布式会话,具体可查看前面的文章.我们知道在web环境下http是一种无状态的通讯协议,要想记录和校验用户的登录状态必须通过session的机制来实现,浏览器通过cookie中存储的se">
 <meta property="og:locale" content="zh-Hans">
@@ -91,9 +91,9 @@
 <meta property="og:image" content="https://upload-images.jianshu.io/upload_images/5104125-b7504043792c32a6.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
 <meta property="og:image" content="https://upload-images.jianshu.io/upload_images/5104125-bbea91133cafe8f3.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
 <meta property="og:image" content="https://upload-images.jianshu.io/upload_images/5104125-32e55f75c5ab6682.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
-<meta property="og:updated_time" content="2018-07-13T08:58:15.991Z">
+<meta property="og:updated_time" content="2018-07-13T09:33:58.289Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="Shiro是如何拦截未登录请求的">
+<meta name="twitter:title" content="Shiro是如何拦截未登录请求的(一)">
 <meta name="twitter:description" content="问题描述之前在公司搭项目平台的时候权限框架采用的是shiro,由于系统主要面向的是APP端的用户,PC端仅仅公司内部人员使用,而且考虑到系统的可用性和扩展性,服务端首先基于shiro做了一些改造以支持多数据源认证和分布式会话,具体可查看前面的文章.我们知道在web环境下http是一种无状态的通讯协议,要想记录和校验用户的登录状态必须通过session的机制来实现,浏览器通过cookie中存储的se">
 <meta name="twitter:image" content="https://upload-images.jianshu.io/upload_images/5104125-6c413e4e7ae212a4.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
 
@@ -125,13 +125,13 @@
 
 
 
-  <link rel="canonical" href="http://yoursite.com/2018/07/12/Shiro是如何拦截未登录请求的/"/>
+  <link rel="canonical" href="http://yoursite.com/2018/07/12/Shiro是如何拦截未登录请求的(一)/"/>
 
 
 
 
 
-  <title>Shiro是如何拦截未登录请求的 | william-zzw</title>
+  <title>Shiro是如何拦截未登录请求的(一) | william-zzw</title>
   
 
 
@@ -268,7 +268,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/07/12/Shiro是如何拦截未登录请求的/">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/07/12/Shiro是如何拦截未登录请求的(一)/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="william.zhang">
@@ -285,7 +285,7 @@
 
         
         
-          <h1 class="post-title" itemprop="name headline">Shiro是如何拦截未登录请求的</h1>
+          <h1 class="post-title" itemprop="name headline">Shiro是如何拦截未登录请求的(一)</h1>
         
 
         <div class="post-meta">
@@ -356,7 +356,7 @@
                   <span class="post-meta-item-text">字数统计&#58;</span>
                 
                 <span title="字数统计">
-                  4,477 字
+                  4,516 字
                 </span>
               
 
@@ -431,7 +431,7 @@
 <p>我们看看其子类SimpleCookie中的readValue,这里的SimpleCookie就是我们之前在springboot中所配置的bean<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Bean</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> SimpleCookie <span class="title">wapsession</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    SimpleCookie simpleCookie = <span class="keyword">new</span> SimpleCookie(<span class="string">"token"</span>);</span><br><span class="line">    simpleCookie.setMaxAge(<span class="number">2592000</span>);</span><br><span class="line">    <span class="keyword">return</span> simpleCookie;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
 <p>再来看它的readValue方法<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> String <span class="title">readValue</span><span class="params">(HttpServletRequest request, HttpServletResponse ignored)</span> </span>&#123;</span><br><span class="line">    String name = getName();</span><br><span class="line">    String value = <span class="keyword">null</span>;</span><br><span class="line">    javax.servlet.http.Cookie cookie = getCookie(request, name);</span><br><span class="line">    <span class="keyword">if</span> (cookie != <span class="keyword">null</span>) &#123;</span><br><span class="line">        <span class="comment">// Validate that the cookie is used at the correct place.</span></span><br><span class="line">        String path = StringUtils.clean(getPath());</span><br><span class="line">        <span class="keyword">if</span> (path != <span class="keyword">null</span> &amp;&amp; !pathMatches(path, request.getRequestURI())) &#123;</span><br><span class="line">            log.warn(<span class="string">"Found '&#123;&#125;' cookie at path '&#123;&#125;', but should be only used for '&#123;&#125;'"</span>, <span class="keyword">new</span> Object[] &#123; name, request.getRequestURI(), path&#125;);</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            value = cookie.getValue();</span><br><span class="line">            log.debug(<span class="string">"Found '&#123;&#125;' cookie value [&#123;&#125;]"</span>, name, value);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        log.trace(<span class="string">"No '&#123;&#125;' cookie value"</span>, name);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> value;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
 <p>注意上面的getName()返回的是cookie的名称,我们在配置时传入的是字符串”token”,看第三行中的getCookie方法,虽然前面的Cookie对象是shiro自定义的,但这里获取的cookie却是java原生的javax.servlet.http.Cookie类.<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">private</span> <span class="keyword">static</span> javax.servlet.http.<span class="function">Cookie <span class="title">getCookie</span><span class="params">(HttpServletRequest request, String cookieName)</span> </span>&#123;</span><br><span class="line">    javax.servlet.http.Cookie cookies[] = request.getCookies();</span><br><span class="line">    <span class="keyword">if</span> (cookies != <span class="keyword">null</span>) &#123;</span><br><span class="line">        <span class="keyword">for</span> (javax.servlet.http.Cookie cookie : cookies) &#123;</span><br><span class="line">            <span class="keyword">if</span> (cookie.getName().equals(cookieName)) &#123;</span><br><span class="line">                <span class="keyword">return</span> cookie;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">null</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
-<p>好了,经过一步步的抽丝剥茧,跟到这里总算找到shiro是在哪里校验未登录请求的了,它依然是依据客户端请求头中携带的cookie来校验的.</p>
+<p>好了,经过一步步的抽丝剥茧,跟到这里总算找到shiro是在哪里校验未登录请求的了,它依然是依据客户端请求头中携带的cookie来校验的.既然已经找到根源,下一篇我们再来看看如何解决文章开头提到的我们在项目中遇到的问题.</p>
 
       
     </div>
