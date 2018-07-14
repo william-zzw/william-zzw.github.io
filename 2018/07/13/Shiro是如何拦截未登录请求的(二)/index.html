@@ -79,18 +79,20 @@
 
 
 
-<meta name="description" content="前言上一篇文章Shiro是如何拦截未登录请求的(一)我们已经知道shiro是怎么拦截未登录请求的了,接下来看看解决问题的两种方案. 解决方案">
+<meta name="description" content="前言在上一篇文章Shiro是如何拦截未登录请求的(一)中提到了,我们在实际的项目中采用了基于token的方式来实现用户的身份鉴权,但是由于开发的时候对shiro的内部机制不太了解导致那一块的代码实现不够完善、整洁并且还对业务造成了影响,在经过对shiro源码的跟踪分析之后,我们已经知道shiro拦截未登录请求的原理了,那么接下来我们开始来针对问题制定相应的解决方案. 解决方案下面先来看看第一种解决">
 <meta name="keywords" content="Shiro,Filter,Token">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Shiro是如何拦截未登录请求的(二)">
 <meta property="og:url" content="http://yoursite.com/2018/07/13/Shiro是如何拦截未登录请求的(二)/index.html">
 <meta property="og:site_name" content="william-zzw">
-<meta property="og:description" content="前言上一篇文章Shiro是如何拦截未登录请求的(一)我们已经知道shiro是怎么拦截未登录请求的了,接下来看看解决问题的两种方案. 解决方案">
+<meta property="og:description" content="前言在上一篇文章Shiro是如何拦截未登录请求的(一)中提到了,我们在实际的项目中采用了基于token的方式来实现用户的身份鉴权,但是由于开发的时候对shiro的内部机制不太了解导致那一块的代码实现不够完善、整洁并且还对业务造成了影响,在经过对shiro源码的跟踪分析之后,我们已经知道shiro拦截未登录请求的原理了,那么接下来我们开始来针对问题制定相应的解决方案. 解决方案下面先来看看第一种解决">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:updated_time" content="2018-07-13T14:54:22.915Z">
+<meta property="og:image" content="https://upload-images.jianshu.io/upload_images/5104125-0dd81c2ae5891043.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+<meta property="og:updated_time" content="2018-07-14T16:03:05.782Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Shiro是如何拦截未登录请求的(二)">
-<meta name="twitter:description" content="前言上一篇文章Shiro是如何拦截未登录请求的(一)我们已经知道shiro是怎么拦截未登录请求的了,接下来看看解决问题的两种方案. 解决方案">
+<meta name="twitter:description" content="前言在上一篇文章Shiro是如何拦截未登录请求的(一)中提到了,我们在实际的项目中采用了基于token的方式来实现用户的身份鉴权,但是由于开发的时候对shiro的内部机制不太了解导致那一块的代码实现不够完善、整洁并且还对业务造成了影响,在经过对shiro源码的跟踪分析之后,我们已经知道shiro拦截未登录请求的原理了,那么接下来我们开始来针对问题制定相应的解决方案. 解决方案下面先来看看第一种解决">
+<meta name="twitter:image" content="https://upload-images.jianshu.io/upload_images/5104125-0dd81c2ae5891043.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
 
 
 
@@ -351,7 +353,7 @@
                   <span class="post-meta-item-text">字数统计&#58;</span>
                 
                 <span title="字数统计">
-                  57 字
+                  730 字
                 </span>
               
 
@@ -367,7 +369,7 @@
                   <span class="post-meta-item-text">阅读时长 &asymp;</span>
                 
                 <span title="阅读时长">
-                  1 分钟
+                  3 分钟
                 </span>
               
             </div>
@@ -388,8 +390,11 @@
       
 
       
-        <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>上一篇文章<a href="/2018/07/12/Shiro是如何拦截未登录请求的(一)/" title="Shiro是如何拦截未登录请求的(一)">Shiro是如何拦截未登录请求的(一)</a>我们已经知道shiro是怎么拦截未登录请求的了,接下来看看解决问题的两种方案.</p>
-<h1 id="解决方案"><a href="#解决方案" class="headerlink" title="解决方案"></a>解决方案</h1>
+        <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>在上一篇文章<a href="/2018/07/12/Shiro是如何拦截未登录请求的(一)/" title="Shiro是如何拦截未登录请求的(一)">Shiro是如何拦截未登录请求的(一)</a>中提到了,我们在实际的项目中采用了基于token的方式来实现用户的身份鉴权,但是由于开发的时候对shiro的内部机制不太了解导致那一块的代码实现不够完善、整洁并且还对业务造成了影响,在经过对shiro源码的跟踪分析之后,我们已经知道shiro拦截未登录请求的原理了,那么接下来我们开始来针对问题制定相应的解决方案.</p>
+<h1 id="解决方案"><a href="#解决方案" class="headerlink" title="解决方案"></a>解决方案</h1><p>下面先来看看第一种解决方案,由于最初在app端是使用传输cookie的方式来实现身份鉴权的,跨域问题也处理过了,为了尽量不改动已经写好的代码,我们先来让h5应用也能在跨域的情况下传输cookie,首先服务端在使用cors协议时需要设置响应消息头Access-Control-Allow-Credentials值为true即允许在ajax访问时携带cookie,客户端方面也需通过js设置withCredentials为true才能真正实现跨域传输cookie.另外为了安全,在cors标准里不允许Access-Control-Allow-Origin设置为*,而是必须指定明确的、与请求网页一致的域名.cookie也依然遵循“同源策略”,只有用目标服务器域名设置的cookie才会上传,而且使用document.cookie也无法读取目标服务器域名下的cookie.接下来我们来看看代码怎么实现:<br>1.先改造之前项目中关于支持跨域配置的代码:<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Bean</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> FilterRegistrationBean <span class="title">corsFilter</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">new</span> FilterRegistrationBean(<span class="keyword">new</span> Filter() &#123;</span><br><span class="line">        <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">doFilter</span><span class="params">(ServletRequest req, ServletResponse res, FilterChain chain)</span></span></span><br><span class="line"><span class="function">                <span class="keyword">throws</span> IOException, ServletException </span>&#123;</span><br><span class="line">            HttpServletRequest request = (HttpServletRequest) req;</span><br><span class="line">            HttpServletResponse response = (HttpServletResponse) res;</span><br><span class="line">            String method = request.getMethod();</span><br><span class="line">            String origin = request.getHeader(<span class="string">"Origin"</span>);</span><br><span class="line">            <span class="keyword">if</span>(origin == <span class="keyword">null</span>) &#123;</span><br><span class="line">                origin = request.getHeader(<span class="string">"Referer"</span>);</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="comment">// this origin value could just as easily have come from a database</span></span><br><span class="line">            response.setHeader(<span class="string">"Access-Control-Allow-Origin"</span>, origin);            <span class="comment">// 允许指定域访问跨域资源</span></span><br><span class="line">            <span class="comment">//response.setHeader("Access-Control-Allow-Origin", "*");</span></span><br><span class="line">            response.setHeader(<span class="string">"Access-Control-Allow-Methods"</span>, <span class="string">"GET, HEAD, POST, PUT, DELETE, OPTIONS"</span>);</span><br><span class="line">            response.setHeader(<span class="string">"Access-Control-Max-Age"</span>, <span class="string">"3600"</span>);</span><br><span class="line">            response.setHeader(<span class="string">"Access-Control-Allow-Credentials"</span>, <span class="string">"true"</span>);</span><br><span class="line">            response.setHeader(<span class="string">"Access-Control-Allow-Headers"</span>, <span class="string">"Accept, Origin, X-Requested-With, Content-Type,Last-Modified,device,token"</span>);</span><br><span class="line">            <span class="keyword">if</span> (<span class="string">"OPTIONS"</span>.equals(method)) &#123;</span><br><span class="line">                response.setStatus(HttpStatus.OK.value());</span><br><span class="line">            &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">                chain.doFilter(req, res);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">init</span><span class="params">(FilterConfig filterConfig)</span> </span>&#123;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">destroy</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>2.客户端也不再需要在请求头中带上token了,只要登录之后不管调什么接口都会自动带上cookie到后端校验的,代码如下:<br><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">$.ajax(&#123;</span><br><span class="line">	url:<span class="string">'http://localhost:8080/win/api/test/cors'</span>,</span><br><span class="line">	type:<span class="string">'post'</span>,</span><br><span class="line">	 beforeSend:<span class="function">(<span class="params">xhr</span>)=&gt;</span> &#123;</span><br><span class="line">	   <span class="comment">//xhr.setRequestHeader('Content-Type','application/x-www-form-urlencoded');</span></span><br><span class="line">	   <span class="comment">//xhr.setRequestHeader("token", "web_session_key-5ce2ae9c-8f79-4f83-9b47-1510da4b2fb0");</span></span><br><span class="line">	   xhr.setRequestHeader(<span class="string">"device"</span>,<span class="string">"APP"</span>);</span><br><span class="line">	&#125;,</span><br><span class="line">	xhrFields:&#123;</span><br><span class="line">		withCredentials:<span class="literal">true</span>,</span><br><span class="line">		useDefaultXhrHeader:<span class="literal">false</span></span><br><span class="line">	&#125;,</span><br><span class="line">	corssDomain:<span class="literal">true</span>,</span><br><span class="line">	success:<span class="function"><span class="keyword">function</span>(<span class="params">data</span>)</span>&#123;</span><br><span class="line">	<span class="built_in">console</span>.log(data);</span><br><span class="line">	&#125;</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure></p>
+<p>这样接口就可以正常返回数据了,控制台也不再报错.<br><img src="https://upload-images.jianshu.io/upload_images/5104125-0dd81c2ae5891043.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="image.png"></p>
+
       
     </div>
     
