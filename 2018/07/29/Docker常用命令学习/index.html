@@ -87,7 +87,7 @@
 <meta property="og:site_name" content="william-zzw">
 <meta property="og:description" content="启动docker引擎1service docker start 重启docker引擎1service docker restart 查看docker版本1docker version docker镜像常用操作查看本地所有镜像123456docker imagesREPOSITORY                            TAG                 IMAGE ID">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:updated_time" content="2018-07-29T09:39:39.360Z">
+<meta property="og:updated_time" content="2018-07-29T13:09:04.859Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Docker常用命令学习">
 <meta name="twitter:description" content="启动docker引擎1service docker start 重启docker引擎1service docker restart 查看docker版本1docker version docker镜像常用操作查看本地所有镜像123456docker imagesREPOSITORY                            TAG                 IMAGE ID">
@@ -351,7 +351,7 @@
                   <span class="post-meta-item-text">字数统计&#58;</span>
                 
                 <span title="字数统计">
-                  1,432 字
+                  1,453 字
                 </span>
               
 
@@ -405,7 +405,8 @@
 <p>attach 与 exec 主要区别如下:<br>attach直接进入容器启动命令的终端,不会启动新的进程.<br>exec 则是在容器中打开新的终端,并且可以启动新的进程.<br>如果想直接在终端中查看启动命令的输出用attach,其他情况使用exec.<br><strong>停止容器</strong><br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker stop 容器ID|容器Name</span><br></pre></td></tr></table></figure></p>
 <p><strong>终止容器</strong><br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker kill 容器ID|容器Name</span><br></pre></td></tr></table></figure></p>
 <p><strong>删除容器</strong><br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker rm 容器ID|容器Name</span><br></pre></td></tr></table></figure></p>
-<p>注意删除正在运行的容器时需先kill掉此容器,才能成功删除.<br><strong>启动容器</strong><br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker start 容器ID|容器Name</span><br></pre></td></tr></table></figure></p>
+<p>注意删除正在运行的容器时需先kill掉此容器或使用-f参数,才能成功删除.<br><strong>删除所有的容器</strong><br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker rm -f $(docker ps -a -q)</span><br></pre></td></tr></table></figure></p>
+<p><strong>启动容器</strong><br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker start 容器ID|容器Name</span><br></pre></td></tr></table></figure></p>
 <p><strong>重启容器</strong><br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker restart 容器ID|容器Name</span><br></pre></td></tr></table></figure></p>
 <p><strong>导出容器</strong><br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker export 容器ID &gt; dubbo.tar</span><br></pre></td></tr></table></figure></p>
 <p>若不指定路径则导出在当前目录上.<br><strong>导入容器</strong><br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker import dubbo.tar dubbo:latest</span><br></pre></td></tr></table></figure></p>
@@ -450,6 +451,10 @@
           <span class="post-nav-divider"></span>
 
           <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2018/07/29/Docker学习之Dockerfile/" rel="prev" title="Docker学习之Dockerfile">
+                Docker学习之Dockerfile <i class="fa fa-chevron-right"></i>
+              </a>
             
           </div>
         </div>
@@ -521,7 +526,7 @@
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">18</span>
+                  <span class="site-state-item-count">19</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>
@@ -543,7 +548,7 @@
               
               <div class="site-state-item site-state-tags">
                 <a href="/tags/index.html">
-                  <span class="site-state-item-count">26</span>
+                  <span class="site-state-item-count">27</span>
                   <span class="site-state-item-name">标签</span>
                 </a>
               </div>
