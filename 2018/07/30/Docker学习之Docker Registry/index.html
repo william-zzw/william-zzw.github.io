@@ -68,7 +68,7 @@
 
 
 
-  <meta name="keywords" content="Java,Tomcat,Eclipse," />
+  <meta name="keywords" content="Docker,Docker Registry," />
 
 
 
@@ -79,20 +79,29 @@
 
 
 
-<meta name="description" content="今天在本地Ecelipse上面部署项目时，启动Tomcat老是出现这个问题： LifecycleProcessor not initialized java.lang.IllegalStateException: ApplicationEventMulticaster not initialized - call ‘refresh’ before multicasting events via t">
-<meta name="keywords" content="Java,Tomcat,Eclipse">
+<meta name="description" content="前言前面已经学习了怎样通过Dockerfile来构建我们自己的镜像了,但是一个系统可能包含着很多个微服务即有很多个镜像,当镜像越来越多的时候,就必须得有一个地方来管理这些镜像,Docker官方提供了Docker Hub来维护管理所有的镜像,只是对于免费用户而言,只能创建一个私有仓库,付费用户才拥有更多私有仓库的权限,对此官方开源了Docker Registry的源代码,我们可以通过它在局域网内部搭">
+<meta name="keywords" content="Docker,Docker Registry">
 <meta property="og:type" content="article">
-<meta property="og:title" content="Eclipse启动Tomcat报错">
-<meta property="og:url" content="http://yoursite.com/2018/05/02/Eclipse启动Tomcat报错/index.html">
+<meta property="og:title" content="Docker学习之Docker Registry">
+<meta property="og:url" content="http://yoursite.com/2018/07/30/Docker学习之Docker Registry/index.html">
 <meta property="og:site_name" content="william-zzw">
-<meta property="og:description" content="今天在本地Ecelipse上面部署项目时，启动Tomcat老是出现这个问题： LifecycleProcessor not initialized java.lang.IllegalStateException: ApplicationEventMulticaster not initialized - call ‘refresh’ before multicasting events via t">
+<meta property="og:description" content="前言前面已经学习了怎样通过Dockerfile来构建我们自己的镜像了,但是一个系统可能包含着很多个微服务即有很多个镜像,当镜像越来越多的时候,就必须得有一个地方来管理这些镜像,Docker官方提供了Docker Hub来维护管理所有的镜像,只是对于免费用户而言,只能创建一个私有仓库,付费用户才拥有更多私有仓库的权限,对此官方开源了Docker Registry的源代码,我们可以通过它在局域网内部搭">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:image" content="https://upload-images.jianshu.io/upload_images/5104125-48d7cb862e3486d1.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
-<meta property="og:updated_time" content="2018-07-13T12:47:49.700Z">
+<meta property="og:image" content="https://upload-images.jianshu.io/upload_images/5104125-a7f18d7ddfbd2703.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+<meta property="og:image" content="https://upload-images.jianshu.io/upload_images/5104125-dd928608c0b6814c.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+<meta property="og:image" content="https://upload-images.jianshu.io/upload_images/5104125-7e88886c9937fd8b.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+<meta property="og:image" content="https://upload-images.jianshu.io/upload_images/5104125-ac0945a759738a72.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+<meta property="og:image" content="https://upload-images.jianshu.io/upload_images/5104125-ee5e4da6b2fa21df.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+<meta property="og:image" content="https://upload-images.jianshu.io/upload_images/5104125-f23a945252052ff4.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+<meta property="og:image" content="https://upload-images.jianshu.io/upload_images/5104125-813dc1f788a93df6.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+<meta property="og:image" content="https://upload-images.jianshu.io/upload_images/5104125-b6796aefa9b693a9.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+<meta property="og:image" content="https://upload-images.jianshu.io/upload_images/5104125-dc550e6dcdf373cf.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+<meta property="og:image" content="https://upload-images.jianshu.io/upload_images/5104125-ca77c9e0cf941d2b.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+<meta property="og:updated_time" content="2018-07-29T16:03:21.820Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="Eclipse启动Tomcat报错">
-<meta name="twitter:description" content="今天在本地Ecelipse上面部署项目时，启动Tomcat老是出现这个问题： LifecycleProcessor not initialized java.lang.IllegalStateException: ApplicationEventMulticaster not initialized - call ‘refresh’ before multicasting events via t">
-<meta name="twitter:image" content="https://upload-images.jianshu.io/upload_images/5104125-48d7cb862e3486d1.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+<meta name="twitter:title" content="Docker学习之Docker Registry">
+<meta name="twitter:description" content="前言前面已经学习了怎样通过Dockerfile来构建我们自己的镜像了,但是一个系统可能包含着很多个微服务即有很多个镜像,当镜像越来越多的时候,就必须得有一个地方来管理这些镜像,Docker官方提供了Docker Hub来维护管理所有的镜像,只是对于免费用户而言,只能创建一个私有仓库,付费用户才拥有更多私有仓库的权限,对此官方开源了Docker Registry的源代码,我们可以通过它在局域网内部搭">
+<meta name="twitter:image" content="https://upload-images.jianshu.io/upload_images/5104125-a7f18d7ddfbd2703.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
 
 
 
@@ -122,13 +131,13 @@
 
 
 
-  <link rel="canonical" href="http://yoursite.com/2018/05/02/Eclipse启动Tomcat报错/"/>
+  <link rel="canonical" href="http://yoursite.com/2018/07/30/Docker学习之Docker Registry/"/>
 
 
 
 
 
-  <title>Eclipse启动Tomcat报错 | william-zzw</title>
+  <title>Docker学习之Docker Registry | william-zzw</title>
   
 
 
@@ -265,7 +274,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/05/02/Eclipse启动Tomcat报错/">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/07/30/Docker学习之Docker Registry/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="william.zhang">
@@ -282,7 +291,7 @@
 
         
         
-          <h1 class="post-title" itemprop="name headline">Eclipse启动Tomcat报错</h1>
+          <h1 class="post-title" itemprop="name headline">Docker学习之Docker Registry</h1>
         
 
         <div class="post-meta">
@@ -294,8 +303,8 @@
               
                 <span class="post-meta-item-text">发表于</span>
               
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-05-02T16:46:38+08:00">
-                2018-05-02
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-07-30T00:03:38+08:00">
+                2018-07-30
               </time>
             
 
@@ -317,8 +326,8 @@
               
               
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/Eclipse/" itemprop="url" rel="index">
-                    <span itemprop="name">Eclipse</span>
+                  <a href="/categories/Docker/" itemprop="url" rel="index">
+                    <span itemprop="name">Docker</span>
                   </a>
                 </span>
 
@@ -353,7 +362,7 @@
                   <span class="post-meta-item-text">字数统计&#58;</span>
                 
                 <span title="字数统计">
-                  133 字
+                  583 字
                 </span>
               
 
@@ -369,7 +378,7 @@
                   <span class="post-meta-item-text">阅读时长 &asymp;</span>
                 
                 <span title="阅读时长">
-                  1 分钟
+                  2 分钟
                 </span>
               
             </div>
@@ -390,12 +399,11 @@
       
 
       
-        <p>今天在本地Ecelipse上面部署项目时，启动Tomcat老是出现这个问题：</p>
-<p><a href="http://blog.csdn.net/mzglzzc/article/details/53169718" target="_blank" rel="noopener">LifecycleProcessor not initialized</a></p>
-<p>java.lang.IllegalStateException: ApplicationEventMulticaster not initialized - call ‘refresh’ before multicasting events via the context: Root WebApplicationContext: startup date [Tue Nov 15 11:34:41 CST 2016]; root of context hierarchy  。报找不到项目启动必须的Spring相关xml文件</p>
-<p>经过不断的clean重启,清理Tomcat缓存还是无效之后，最后通过项目右键点击properties-&gt;Java Build Path-&gt;Source 右边Add Folder</p>
-<p><img src="https://upload-images.jianshu.io/upload_images/5104125-48d7cb862e3486d1.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="截图.png"></p>
-<p>选中Resource 点击OK之后 重新编译部署之后 终于跑起来了。</p>
+        <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>前面已经学习了怎样通过Dockerfile来构建我们自己的镜像了,但是一个系统可能包含着很多个微服务即有很多个镜像,当镜像越来越多的时候,就必须得有一个地方来管理这些镜像,Docker官方提供了Docker Hub来维护管理所有的镜像,只是对于免费用户而言,只能创建一个私有仓库,付费用户才拥有更多私有仓库的权限,对此官方开源了Docker Registry的源代码,我们可以通过它在局域网内部搭建私有的镜像注册中心.</p>
+<h1 id="使用公共注册中心"><a href="#使用公共注册中心" class="headerlink" title="使用公共注册中心"></a>使用公共注册中心</h1><p>Docker Hub是Docker官方维护的公共镜像注册中心,用户可以将自己的镜像推送到Docker Hub免费的仓库中,要想使用Docker Hub得先注册一个Docker Hub账号.<br>账号注册地址:<a href="https://hub.docker.com/(注意要想成功注册账号得先科学上网" target="_blank" rel="noopener">https://hub.docker.com/(注意要想成功注册账号得先科学上网</a>)<br><img src="https://upload-images.jianshu.io/upload_images/5104125-a7f18d7ddfbd2703.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="image.png"><br>注册成功后就可以通过docker login命令输入账号密码登录进去创建我们自己的私有仓库和推送镜像了.</p>
+<h1 id="搭建本地注册中心"><a href="#搭建本地注册中心" class="headerlink" title="搭建本地注册中心"></a>搭建本地注册中心</h1><p>通常由于安全和网络原因,企业内部都会在本地局域网搭建一个镜像注册中心.<br>1.运行docker pull命令拉取registry镜像.<br><img src="https://upload-images.jianshu.io/upload_images/5104125-dd928608c0b6814c.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="image.png"><br>2.通过registry镜像启动一个容器.<br><img src="https://upload-images.jianshu.io/upload_images/5104125-7e88886c9937fd8b.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="image.png"><br>3.查看容器运行情况.<br><img src="https://upload-images.jianshu.io/upload_images/5104125-ac0945a759738a72.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="image.png"><br>4.容器启动后打开浏览器输入192.168.56.101:5000/v2/出现下面情况则说明运行正常.<br><img src="https://upload-images.jianshu.io/upload_images/5104125-ee5e4da6b2fa21df.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="image.png"><br>接着我们使用docker push命令来推送自己的镜像到本地注册中心.<br>推送过程可能会不成功即出现下面这种情况getsocket:connection refused.<br><img src="https://upload-images.jianshu.io/upload_images/5104125-f23a945252052ff4.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="image.png"><br>可尝试以下解决方案:<br>修改/etc/docker/daemon.json文件<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">vi /etc/docker/daemon.json</span><br></pre></td></tr></table></figure></p>
+<p>增加”insecure-registries”: [“192.168.56.101:5000”]<br><img src="https://upload-images.jianshu.io/upload_images/5104125-813dc1f788a93df6.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="image.png"><br>然后重启docker引擎<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">service docker restart</span><br></pre></td></tr></table></figure></p>
+<p>再次推送镜像到注册中心,我们会发现这次推送成功了.<br><img src="https://upload-images.jianshu.io/upload_images/5104125-b6796aefa9b693a9.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="image.png"><br>push成功后再来看看刚刚推送上来的镜像,打开浏览器输入:<br><img src="https://upload-images.jianshu.io/upload_images/5104125-dc550e6dcdf373cf.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="image.png"><br>也可以使用以下命令来验证是否已推送成功:<br><img src="https://upload-images.jianshu.io/upload_images/5104125-ca77c9e0cf941d2b.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="image.png"><br>到此就搭建好了Docker私有仓库了,现在你可以通过 docker pull从本地Registry拉取镜像了.</p>
 
       
     </div>
@@ -413,11 +421,9 @@
       
         <div class="post-tags">
           
-            <a href="/tags/Java/" rel="tag"># Java</a>
+            <a href="/tags/Docker/" rel="tag"># Docker</a>
           
-            <a href="/tags/Tomcat/" rel="tag"># Tomcat</a>
-          
-            <a href="/tags/Eclipse/" rel="tag"># Eclipse</a>
+            <a href="/tags/Docker-Registry/" rel="tag"># Docker Registry</a>
           
         </div>
       
@@ -430,8 +436,8 @@
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/2018/05/02/程序异常处理总结/" rel="next" title="程序异常处理总结">
-                <i class="fa fa-chevron-left"></i> 程序异常处理总结
+              <a href="/2018/07/29/Docker学习之Dockerfile/" rel="next" title="Docker学习之Dockerfile">
+                <i class="fa fa-chevron-left"></i> Docker学习之Dockerfile
               </a>
             
           </div>
@@ -439,10 +445,6 @@
           <span class="post-nav-divider"></span>
 
           <div class="post-nav-prev post-nav-item">
-            
-              <a href="/2018/05/02/MySQL异常：MySQL server has gone away/" rel="prev" title="MySQL异常：MySQL server has gone away">
-                MySQL异常：MySQL server has gone away <i class="fa fa-chevron-right"></i>
-              </a>
             
           </div>
         </div>
@@ -494,8 +496,17 @@
       
 
       
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
 
-      <section class="site-overview-wrap sidebar-panel sidebar-panel-active">
+      <section class="site-overview-wrap sidebar-panel">
         <div class="site-overview">
           <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
             
@@ -573,6 +584,22 @@
         </div>
       </section>
 
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#前言"><span class="nav-number">1.</span> <span class="nav-text">前言</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#使用公共注册中心"><span class="nav-number">2.</span> <span class="nav-text">使用公共注册中心</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#搭建本地注册中心"><span class="nav-number">3.</span> <span class="nav-text">搭建本地注册中心</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
       
 
       
