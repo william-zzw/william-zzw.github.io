@@ -79,13 +79,13 @@
 
 
 
-<meta name="description" content="docker简介docker诞生于2013年初,是dotCloud公司发布的一款轻量级的、开源的Linux应用容器引擎,它基于go语言实现,并且允许开发者将应用及其依赖打包到一个可移植的镜像中,它使得测试与部署比以往任何时候都要快速简单,docker的出现有效的解决了在微服务的架构下,服务粒度细,服务数量多所导致的开发环境搭建,部署和运维成本高的问题.如上图中的docker图标,这只托着许多的集装">
+<meta name="description" content="Docker简介docker诞生于2013年初,是dotCloud公司发布的一款轻量级的、开源的Linux应用容器引擎,它基于go语言实现,并且允许开发者将应用及其依赖打包到一个可移植的镜像中,它使得测试与部署比以往任何时候都要快速简单,docker的出现有效的解决了在微服务的架构下,服务粒度细,服务数量多所导致的开发环境搭建,部署和运维成本高的问题.如上图中的docker图标,这只托着许多的集装">
 <meta name="keywords" content="Docker">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Docker入门学习">
 <meta property="og:url" content="http://yoursite.com/2018/07/29/Docker入门学习/index.html">
 <meta property="og:site_name" content="william-zzw">
-<meta property="og:description" content="docker简介docker诞生于2013年初,是dotCloud公司发布的一款轻量级的、开源的Linux应用容器引擎,它基于go语言实现,并且允许开发者将应用及其依赖打包到一个可移植的镜像中,它使得测试与部署比以往任何时候都要快速简单,docker的出现有效的解决了在微服务的架构下,服务粒度细,服务数量多所导致的开发环境搭建,部署和运维成本高的问题.如上图中的docker图标,这只托着许多的集装">
+<meta property="og:description" content="Docker简介docker诞生于2013年初,是dotCloud公司发布的一款轻量级的、开源的Linux应用容器引擎,它基于go语言实现,并且允许开发者将应用及其依赖打包到一个可移植的镜像中,它使得测试与部署比以往任何时候都要快速简单,docker的出现有效的解决了在微服务的架构下,服务粒度细,服务数量多所导致的开发环境搭建,部署和运维成本高的问题.如上图中的docker图标,这只托着许多的集装">
 <meta property="og:locale" content="zh-Hans">
 <meta property="og:image" content="https://upload-images.jianshu.io/upload_images/5104125-2baddc7f5b6a28be.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
 <meta property="og:image" content="https://upload-images.jianshu.io/upload_images/5104125-8e87b9b958c8cd0e.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
@@ -99,10 +99,10 @@
 <meta property="og:image" content="https://upload-images.jianshu.io/upload_images/5104125-84861ab381d2e25e.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
 <meta property="og:image" content="https://upload-images.jianshu.io/upload_images/5104125-f2a085e48fad59c9.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
 <meta property="og:image" content="https://upload-images.jianshu.io/upload_images/5104125-15078ac89e47db7a.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
-<meta property="og:updated_time" content="2018-07-29T07:45:19.109Z">
+<meta property="og:updated_time" content="2018-07-29T07:51:19.546Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Docker入门学习">
-<meta name="twitter:description" content="docker简介docker诞生于2013年初,是dotCloud公司发布的一款轻量级的、开源的Linux应用容器引擎,它基于go语言实现,并且允许开发者将应用及其依赖打包到一个可移植的镜像中,它使得测试与部署比以往任何时候都要快速简单,docker的出现有效的解决了在微服务的架构下,服务粒度细,服务数量多所导致的开发环境搭建,部署和运维成本高的问题.如上图中的docker图标,这只托着许多的集装">
+<meta name="twitter:description" content="Docker简介docker诞生于2013年初,是dotCloud公司发布的一款轻量级的、开源的Linux应用容器引擎,它基于go语言实现,并且允许开发者将应用及其依赖打包到一个可移植的镜像中,它使得测试与部署比以往任何时候都要快速简单,docker的出现有效的解决了在微服务的架构下,服务粒度细,服务数量多所导致的开发环境搭建,部署和运维成本高的问题.如上图中的docker图标,这只托着许多的集装">
 <meta name="twitter:image" content="https://upload-images.jianshu.io/upload_images/5104125-2baddc7f5b6a28be.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
 
 
@@ -401,18 +401,22 @@
       
 
       
-        <h1 id="docker简介"><a href="#docker简介" class="headerlink" title="docker简介"></a>docker简介</h1><p>docker诞生于2013年初,是dotCloud公司发布的一款轻量级的、开源的Linux应用容器引擎,它基于go语言实现,并且允许开发者将应用及其依赖打包到一个可移植的镜像中,它使得测试与部署比以往任何时候都要快速简单,docker的出现有效的解决了在微服务的架构下,服务粒度细,服务数量多所导致的开发环境搭建,部署和运维成本高的问题.<br><img src="https://upload-images.jianshu.io/upload_images/5104125-2baddc7f5b6a28be.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="image.png"><br>如上图中的docker图标,这只托着许多的集装箱的鲸鱼就相当于一个docker引擎,上面的集装箱就是相当于是相互隔离的docker容器,每个容器中都运行着自己的应用程序.</p>
-<h1 id="docker与传统虚拟机的区别"><a href="#docker与传统虚拟机的区别" class="headerlink" title="docker与传统虚拟机的区别"></a>docker与传统虚拟机的区别</h1><p>docker的技术架构:<br><img src="https://upload-images.jianshu.io/upload_images/5104125-8e87b9b958c8cd0e.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="image.png"><br>传统虚拟机的技术架构:<br><img src="https://upload-images.jianshu.io/upload_images/5104125-035e07a79b1ee0f4.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="image.png"><br>两者的主要区别是:</p>
+        <h1 id="Docker简介"><a href="#Docker简介" class="headerlink" title="Docker简介"></a>Docker简介</h1><p>docker诞生于2013年初,是dotCloud公司发布的一款轻量级的、开源的Linux应用容器引擎,它基于go语言实现,并且允许开发者将应用及其依赖打包到一个可移植的镜像中,它使得测试与部署比以往任何时候都要快速简单,docker的出现有效的解决了在微服务的架构下,服务粒度细,服务数量多所导致的开发环境搭建,部署和运维成本高的问题.<br><img src="https://upload-images.jianshu.io/upload_images/5104125-2baddc7f5b6a28be.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="image.png"><br>如上图中的docker图标,这只托着许多的集装箱的鲸鱼就相当于一个docker引擎,上面的集装箱就是相当于是相互隔离的docker容器,每个容器中都运行着自己的应用程序.</p>
+<h1 id="Docker与传统虚拟机的区别"><a href="#Docker与传统虚拟机的区别" class="headerlink" title="Docker与传统虚拟机的区别"></a>Docker与传统虚拟机的区别</h1><p>docker的技术架构:<br><img src="https://upload-images.jianshu.io/upload_images/5104125-8e87b9b958c8cd0e.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="image.png"><br>传统虚拟机的技术架构:<br><img src="https://upload-images.jianshu.io/upload_images/5104125-035e07a79b1ee0f4.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="image.png"><br>两者的主要区别是:</p>
 <ul>
 <li>docker容器可以在秒级启动,传统的虚拟机启动一般为分钟级.</li>
 <li>docker容器基于进程隔离,且共享操作系统内核,占用空间非常小,一般为M级别,虚拟机是在物理硬件层面上的虚拟化,每个虚拟机必须包含一整套操作系统,应用程序和依赖库等,占用空间一般为G级别.</li>
-<li>docker容器对系统资源的利用率很高,单机可启动上千个docker容器,虚拟机需要模拟硬件与网络资源,会占用大量系统开销,单机一般最多只能启动几十个虚拟机.<br>#docker的架构<br>docker使用c/s架构,client 通过接口与server进程通信实现容器的构建,运行和发布.client和server可以运行在同一台集群,也可以通过跨主机实现远程通信.<br><img src="https://upload-images.jianshu.io/upload_images/5104125-43081269a80a0216.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="image.png"><br>docker的几个核心概念:</li>
+<li>docker容器对系统资源的利用率很高,单机可启动上千个docker容器,虚拟机需要模拟硬件与网络资源,会占用大量系统开销,单机一般最多只能启动几十个虚拟机.</li>
+</ul>
+<h1 id="Docker的架构"><a href="#Docker的架构" class="headerlink" title="Docker的架构"></a>Docker的架构</h1><p>docker使用c/s架构,client 通过接口与server进程通信实现容器的构建,运行和发布.client和server可以运行在同一台集群,也可以通过跨主机实现远程通信.<br><img src="https://upload-images.jianshu.io/upload_images/5104125-43081269a80a0216.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="image.png"><br>docker的几个核心概念:</p>
+<ul>
 <li>docker引擎(Docker Engine)<br>docker引擎即运行在宿主机(DOCKER_HOST)上的一个后台进程,也称为Docker Daemon,其本质上就是一个服务,只要启动该服务就可以通过docker客户端发送相关的命令与引擎通讯了.</li>
 <li>docker客户端<br>docker客户端是和后台服务交互的主要工具,客户端有两种,一种是命令行工具,输入docker命令后,后台服务就能执行该命令了,另一种是REST API,一般在应用程序中我们使用REST API来与docker引擎交互.</li>
 <li>docker镜像(Docker Image)<br>镜像是只读的指令模板,用于创建docker容器,与系统光盘有点类似,用户可以构建镜像或下载使用其他人构建的镜像,我们只需读取镜像便能将其载入docker引擎中,并启动一个容器运行镜像中的程序.</li>
 <li>docker容器<br>docker容器是docker镜像的可运行实例,当我们获取到镜像后,可随时运行该镜像,此时便会启动一个docker容器,容器中将运行镜像中的应用程序,用户可以使用docker api或者命令行来运行、启动、停止、移动或删除容器,运行容器时可以提供配置元数据,例如网络信息或环境变量,容器是一个隔离安全的应用程序平台,但可以访问在不同主机或容器中运行的资源,以及持久存储或数据库.</li>
-<li>docker镜像注册中心(Docker Registry)<br>docker官方提供了一个Docker Hub的镜像注册中心,用于存放公开的和私有的镜像仓库(Docker Respository),当然我们也可以在本地局域网搭建自己的注册中心,当用户使用docker pull或者docker run时就会从注册中心中下载镜像,当使用push时就会推送我们的镜像到镜像中心去.<h1 id="docker的安装使用"><a href="#docker的安装使用" class="headerlink" title="docker的安装使用"></a>docker的安装使用</h1>docker官方建议将docker安装运行在linux系统上,在linux系统上可以直接运行docker引擎,在mac osx或者windows系统上需要通过linux vm才能运行docker 引擎.,我们在本地centos7.3上安装docker,且必须同时满足CPU为64位,Linux内核版本为3.10以上.<br>安装步骤:<br>1.执行yum update 更新yum包安装最新的docker.<br>2.添加yum的docker仓库包<br><img src="https://upload-images.jianshu.io/upload_images/5104125-8b63c12daf7ddc11.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="image.png"><br>3.安装docker引擎<br><img src="https://upload-images.jianshu.io/upload_images/5104125-4ab0bb49063574d3.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="image.png"><br>4.启动docker<br><img src="https://upload-images.jianshu.io/upload_images/5104125-ded9e28331812f44.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="image.png"><br>5.查看docker版本<br><img src="https://upload-images.jianshu.io/upload_images/5104125-270ca3ef93148600.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="image.png"><br>6.使用docker国内镜像<br><img src="https://upload-images.jianshu.io/upload_images/5104125-bd04ce8ddfad7c36.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="image.png"><br>下面来看看两个docker的简单使用<br>运行docker自带的hello world程序<br><img src="https://upload-images.jianshu.io/upload_images/5104125-84861ab381d2e25e.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="image.png"><br>以后台模式在80端口启动nginx服务<br><img src="https://upload-images.jianshu.io/upload_images/5104125-f2a085e48fad59c9.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="image.png"><br>打开浏览器输入<a href="http://192.168.56.101可以看到" target="_blank" rel="noopener">http://192.168.56.101可以看到</a><br><img src="https://upload-images.jianshu.io/upload_images/5104125-15078ac89e47db7a.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="image.png"></li>
+<li>docker镜像注册中心(Docker Registry)<br>docker官方提供了一个Docker Hub的镜像注册中心,用于存放公开的和私有的镜像仓库(Docker Respository),当然我们也可以在本地局域网搭建自己的注册中心,当用户使用docker pull或者docker run时就会从注册中心中下载镜像,当使用push时就会推送我们的镜像到镜像中心去.</li>
 </ul>
+<h1 id="Docker的安装使用"><a href="#Docker的安装使用" class="headerlink" title="Docker的安装使用"></a>Docker的安装使用</h1><p>docker官方建议将docker安装运行在linux系统上,在linux系统上可以直接运行docker引擎,在mac osx或者windows系统上需要通过linux vm才能运行docker 引擎.,我们在本地centos7.3上安装docker,且必须同时满足CPU为64位,Linux内核版本为3.10以上.<br>安装步骤:<br>1.执行yum update 更新yum包安装最新的docker.<br>2.添加yum的docker仓库包<br><img src="https://upload-images.jianshu.io/upload_images/5104125-8b63c12daf7ddc11.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="image.png"><br>3.安装docker引擎<br><img src="https://upload-images.jianshu.io/upload_images/5104125-4ab0bb49063574d3.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="image.png"><br>4.启动docker<br><img src="https://upload-images.jianshu.io/upload_images/5104125-ded9e28331812f44.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="image.png"><br>5.查看docker版本<br><img src="https://upload-images.jianshu.io/upload_images/5104125-270ca3ef93148600.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="image.png"><br>6.使用docker国内镜像<br><img src="https://upload-images.jianshu.io/upload_images/5104125-bd04ce8ddfad7c36.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="image.png"><br>下面来看看两个docker的简单使用<br>运行docker自带的hello world程序<br><img src="https://upload-images.jianshu.io/upload_images/5104125-84861ab381d2e25e.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="image.png"><br>以后台模式在80端口启动nginx服务<br><img src="https://upload-images.jianshu.io/upload_images/5104125-f2a085e48fad59c9.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="image.png"><br>打开浏览器输入<a href="http://192.168.56.101可以看到" target="_blank" rel="noopener">http://192.168.56.101可以看到</a><br><img src="https://upload-images.jianshu.io/upload_images/5104125-15078ac89e47db7a.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="image.png"></p>
 
       
     </div>
@@ -601,7 +605,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#docker简介"><span class="nav-number">1.</span> <span class="nav-text">docker简介</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#docker与传统虚拟机的区别"><span class="nav-number">2.</span> <span class="nav-text">docker与传统虚拟机的区别</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#docker的安装使用"><span class="nav-number">3.</span> <span class="nav-text">docker的安装使用</span></a></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Docker简介"><span class="nav-number">1.</span> <span class="nav-text">Docker简介</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Docker与传统虚拟机的区别"><span class="nav-number">2.</span> <span class="nav-text">Docker与传统虚拟机的区别</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Docker的架构"><span class="nav-number">3.</span> <span class="nav-text">Docker的架构</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Docker的安装使用"><span class="nav-number">4.</span> <span class="nav-text">Docker的安装使用</span></a></li></ol></div>
             
 
           </div>
