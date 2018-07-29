@@ -88,7 +88,7 @@
 <meta property="og:description" content="Dockerfile基本结构Dockerfile是一个编写docker镜像的脚本文件,其中包含了若干条描述构建镜像的细节的docker指令,使用Dockerfile可以允许用户创建自定义的docker镜像.Dockerfile由一行行的命令语句组成,并且支持以#开头的的注释行,一般由以下四部分组成:1.基础镜像使用FROM指令来设置基础镜像,FROM指令有固定的格式为FROM &amp;lt;镜像名&amp;gt">
 <meta property="og:locale" content="zh-Hans">
 <meta property="og:image" content="https://upload-images.jianshu.io/upload_images/5104125-2e7b6e563a8f494f.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
-<meta property="og:updated_time" content="2018-07-29T14:51:56.295Z">
+<meta property="og:updated_time" content="2018-07-29T14:53:15.253Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Docker学习之Dockerfile">
 <meta name="twitter:description" content="Dockerfile基本结构Dockerfile是一个编写docker镜像的脚本文件,其中包含了若干条描述构建镜像的细节的docker指令,使用Dockerfile可以允许用户创建自定义的docker镜像.Dockerfile由一行行的命令语句组成,并且支持以#开头的的注释行,一般由以下四部分组成:1.基础镜像使用FROM指令来设置基础镜像,FROM指令有固定的格式为FROM &amp;lt;镜像名&amp;gt">
@@ -353,7 +353,7 @@
                   <span class="post-meta-item-text">字数统计&#58;</span>
                 
                 <span title="字数统计">
-                  1,071 字
+                  1,074 字
                 </span>
               
 
@@ -390,7 +390,7 @@
       
 
       
-        <h1 id="Dockerfile基本结构"><a href="#Dockerfile基本结构" class="headerlink" title="Dockerfile基本结构"></a>Dockerfile基本结构</h1><p>Dockerfile是一个编写docker镜像的脚本文件,其中包含了若干条描述构建镜像的细节的docker指令,使用Dockerfile可以允许用户创建自定义的docker镜像.<br>Dockerfile由一行行的命令语句组成,并且支持以#开头的的注释行,一般由以下四部分组成:<br><strong>1.基础镜像</strong><br>使用FROM指令来设置基础镜像,FROM指令有固定的格式为FROM &lt;镜像名&gt;:<tag>,若镜像为latest版本则tag可以省略,否则必须指定版本号,如FROM java:8<br><strong>2.维护者信息</strong><br>格式为MAINTAINER<name>,指定维护者信息.<br><strong>3.镜像操作指令</strong></name></tag></p>
+        <h1 id="Dockerfile基本结构"><a href="#Dockerfile基本结构" class="headerlink" title="Dockerfile基本结构"></a>Dockerfile基本结构</h1><p>Dockerfile是一个编写docker镜像的脚本文件,其中包含了若干条描述构建镜像的细节的docker指令,使用Dockerfile可以允许用户创建自定义的docker镜像.<br>Dockerfile由一行行的命令语句组成,并且支持以#开头的的注释行,一般由以下四部分组成:<br><strong>1.基础镜像</strong><br>使用FROM指令来设置基础镜像,FROM指令有固定的格式为FROM &lt;镜像名&gt;:&lt;标签名&gt;,若镜像为latest版本则tag可以省略,否则必须指定版本号,如FROM java:8<br><strong>2.维护者信息</strong><br>格式为MAINTAINER<name>,指定维护者信息.<br><strong>3.镜像操作指令</strong></name></p>
 <ul>
 <li>ADD<br>格式为ADD <src><dest>,该命令将复制宿主机的路径下的文件到容器的目标路径下,宿主机的路径可以为相对路径,容器的目标路径必须为绝对路径.使用ADD指令将自动解压来源路径中的压缩包.</dest></src></li>
 <li>COPY<br>格式为COPY <src><dest>,与ADD功能类似,COPY指令没有自动解压的功能.</dest></src></li>
