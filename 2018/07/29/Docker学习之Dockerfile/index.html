@@ -88,7 +88,7 @@
 <meta property="og:description" content="Dockerfile基本结构Dockerfile是一个编写docker镜像的脚本文件,其中包含了若干条描述构建镜像的细节的docker指令,使用Dockerfile可以允许用户创建自定义的docker镜像.Dockerfile由一行行的命令语句组成,并且支持以#开头的的注释行,一般由以下四部分组成:1.基础镜像使用FROM指令来设置基础镜像,FROM指令有固定的格式为FROM :,若镜像为late">
 <meta property="og:locale" content="zh-Hans">
 <meta property="og:image" content="https://upload-images.jianshu.io/upload_images/5104125-2e7b6e563a8f494f.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
-<meta property="og:updated_time" content="2018-07-29T14:44:43.542Z">
+<meta property="og:updated_time" content="2018-07-29T14:48:18.185Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Docker学习之Dockerfile">
 <meta name="twitter:description" content="Dockerfile基本结构Dockerfile是一个编写docker镜像的脚本文件,其中包含了若干条描述构建镜像的细节的docker指令,使用Dockerfile可以允许用户创建自定义的docker镜像.Dockerfile由一行行的命令语句组成,并且支持以#开头的的注释行,一般由以下四部分组成:1.基础镜像使用FROM指令来设置基础镜像,FROM指令有固定的格式为FROM :,若镜像为late">
@@ -390,7 +390,7 @@
       
 
       
-        <h1 id="Dockerfile基本结构"><a href="#Dockerfile基本结构" class="headerlink" title="Dockerfile基本结构"></a>Dockerfile基本结构</h1><p>Dockerfile是一个编写docker镜像的脚本文件,其中包含了若干条描述构建镜像的细节的docker指令,使用Dockerfile可以允许用户创建自定义的docker镜像.<br>Dockerfile由一行行的命令语句组成,并且支持以#开头的的注释行,一般由以下四部分组成:<br><strong>1.基础镜像</strong><br>使用FROM指令来设置基础镜像,FROM指令有固定的格式为FROM <image>:<tag>,若镜像为latest版本则tag可以省略,否则必须指定版本号,如FROM java:8<br><strong>2.维护者信息</strong><br>格式为MAINTAINER<name>,指定维护者信息.<br><strong>3.镜像操作指令</strong></name></tag></image></p>
+        <h1 id="Dockerfile基本结构"><a href="#Dockerfile基本结构" class="headerlink" title="Dockerfile基本结构"></a>Dockerfile基本结构</h1><p>Dockerfile是一个编写docker镜像的脚本文件,其中包含了若干条描述构建镜像的细节的docker指令,使用Dockerfile可以允许用户创建自定义的docker镜像.<br>Dockerfile由一行行的命令语句组成,并且支持以#开头的的注释行,一般由以下四部分组成:<br><strong>1.基础镜像</strong><br>使用FROM指令来设置基础镜像,FROM指令有固定的格式为FROM <images>:<tag>,若镜像为latest版本则tag可以省略,否则必须指定版本号,如FROM java:8<br><strong>2.维护者信息</strong><br>格式为MAINTAINER<name>,指定维护者信息.<br><strong>3.镜像操作指令</strong></name></tag></images></p>
 <ul>
 <li>ADD<br>格式为ADD <src><dest>,该命令将复制宿主机的路径下的文件到容器的目标路径下,宿主机的路径可以为相对路径,容器的目标路径必须为绝对路径.使用ADD指令将自动解压来源路径中的压缩包.</dest></src></li>
 <li>COPY<br>格式为COPY <src><dest>,与ADD功能类似,COPY指令没有自动解压的功能.</dest></src></li>
@@ -400,13 +400,16 @@
 <li>EXPOSE<br>声明运行时容器暴露的端口,格式为EXPOSE <port>.</port></li>
 <li>WORKDIR<br>设置进入容器时的工作目录,格式为WORKDIR /path/to/workdir</li>
 <li>VOLUME<br>指定可被挂载的数据卷,用于目录映射.格式为VOLUME /path/data.</li>
-<li>ONBUILD<br>设置构建时需自动执行的指令.<br><strong>4.容器启动时执行指令</strong></li>
+<li>ONBUILD<br>设置构建时需自动执行的指令.</li>
+</ul>
+<p><strong>4.容器启动时执行指令</strong></p>
+<ul>
 <li>CMD<br>支持三种格式<br>CMD [“executable”,”param1”,”param2”]使用exec执行,推荐方式.<br>CMD command param1 param2在/bin/sh中执行,提供给需要交互的应用.<br>CMD [“param1”,”param2”]提供给ENTRYPOINT的默认参数.<br>指定启动容器时执行的命令,每个Dockerfile只能有一条CMD命令.如果指定了多条命令,只有最后一条会被执行.<br>如果用户启动容器时候指定了运行的命令,则会覆盖掉CMD指定的命令.<ul>
-<li>ENTRYPOINT<br>两种格式<br>ENTRYPOINT [“executable”, “param1”, “param2”]<br>ENTRYPOINT command param1 param2(shell中执行).<br>配置容器启动后执行的命令,并且不可被docker run提供的参数覆盖.<br>每个 Dockerfile中只能有一个ENTRYPOINT,当指定多个时,只有最后一个起效.<h1 id="使用Dockerfile构建镜像"><a href="#使用Dockerfile构建镜像" class="headerlink" title="使用Dockerfile构建镜像"></a>使用Dockerfile构建镜像</h1>前面已经了解了Dockerfile的基本结构了,下面基于Dockerfile我们来构建一个java镜像.<br>先在宿主机上创建个目录存放要构建的jdk源文件包.<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">mkdir /usr/local/docker/software</span><br><span class="line">cp jdk-8u181-linux-x64.tar.gz /usr/local/docker/software</span><br></pre></td></tr></table></figure>
-</li>
+<li>ENTRYPOINT<br>两种格式<br>ENTRYPOINT [“executable”, “param1”, “param2”]<br>ENTRYPOINT command param1 param2(shell中执行).<br>配置容器启动后执行的命令,并且不可被docker run提供的参数覆盖.<br>每个 Dockerfile中只能有一个ENTRYPOINT,当指定多个时,只有最后一个起效.</li>
 </ul>
 </li>
 </ul>
+<h1 id="使用Dockerfile构建镜像"><a href="#使用Dockerfile构建镜像" class="headerlink" title="使用Dockerfile构建镜像"></a>使用Dockerfile构建镜像</h1><p>前面已经了解了Dockerfile的基本结构了,下面基于Dockerfile我们来构建一个java镜像.<br>先在宿主机上创建个目录存放要构建的jdk源文件包.<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">mkdir /usr/local/docker/software</span><br><span class="line">cp jdk-8u181-linux-x64.tar.gz /usr/local/docker/software</span><br></pre></td></tr></table></figure></p>
 <p>创建空白的Dockerfile文本文件,注意Dockerfile要与放到容器中的文件存储在同一目录下即/usr/local/docker/software,接下来开始编写Dockerfile指令:<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">FROM centos:latest #设置基础镜像centos</span><br><span class="line">MAINTAINER &quot;william.zhang&quot;&lt;952408421@qq.com&gt; #设置维护者信息</span><br><span class="line">ADD jdk-8u181-linux-x64.tar.gz /opt#复制文件到容器的opt目录下并自动解压</span><br><span class="line">RUN ln -s /opt/jdk1.8.0_181 /opt/jdk#执行指令建立符号链接用于快速访问jdk目录</span><br><span class="line">#设置JDK环境变量</span><br><span class="line">ENV JAVA_HOME /opt/jdk</span><br><span class="line">ENV PATH $JAVA_HOME/bin:$PATH</span><br><span class="line">#设置容器启动时输出JDK版本</span><br><span class="line">CMD java -version</span><br></pre></td></tr></table></figure></p>
 <p>然后使用docker build命令来读取Dockerfile文件,并构建镜像.<br><img src="https://upload-images.jianshu.io/upload_images/5104125-2e7b6e563a8f494f.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="image.png"><br>我们使用了-t选项来制定镜像的名称,并读取当前目录中的Dockerfile文件.<br>接着使用docker images可以查看已构建好的所有镜像了.<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">[root@bogon software]# docker images</span><br><span class="line">REPOSITORY                            TAG                 IMAGE ID            CREATED             SIZE</span><br><span class="line">192.168.56.101:5000/hello/hello-api   1.0.0               c1cefec5b8a8        23 hours ago        673MB</span><br><span class="line">nginx                                 latest              c82521676580        4 days ago          109MB</span><br><span class="line">registry                              latest              b2b03e9146e1        3 weeks ago         33.3MB</span><br><span class="line">java                                  8                   d23bdf5b1b1b        18 months ago       643MB</span><br></pre></td></tr></table></figure></p>
 <p>最后我们还可以使用docker tag来修改镜像的仓库名与标签名:<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker tag d23bdf5b1b1b java:8</span><br></pre></td></tr></table></figure></p>
