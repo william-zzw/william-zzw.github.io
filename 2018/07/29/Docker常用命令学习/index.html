@@ -79,31 +79,18 @@
 
 
 
-<meta name="description" content="Docker简介docker诞生于2013年初,是dotCloud公司发布的一款轻量级的、开源的Linux应用容器引擎,它基于go语言实现,并且允许开发者将应用及其依赖打包到一个可移植的镜像中,它使得测试与部署比以往任何时候都要快速简单,docker的出现有效的解决了在微服务的架构下,服务粒度细,服务数量多所导致的开发环境搭建,部署和运维成本高的问题.如上图中的docker图标,这只托着许多集装箱">
+<meta name="description" content="启动docker引擎1service docker start 重启docker引擎1service docker restart 查看docker版本1docker version docker镜像常用操作查看本地所有镜像123456docker imagesREPOSITORY                            TAG                 IMAGE ID">
 <meta name="keywords" content="Docker">
 <meta property="og:type" content="article">
-<meta property="og:title" content="Docker入门学习">
-<meta property="og:url" content="http://yoursite.com/2018/07/29/Docker入门学习/index.html">
+<meta property="og:title" content="Docker常用命令学习">
+<meta property="og:url" content="http://yoursite.com/2018/07/29/Docker常用命令学习/index.html">
 <meta property="og:site_name" content="william-zzw">
-<meta property="og:description" content="Docker简介docker诞生于2013年初,是dotCloud公司发布的一款轻量级的、开源的Linux应用容器引擎,它基于go语言实现,并且允许开发者将应用及其依赖打包到一个可移植的镜像中,它使得测试与部署比以往任何时候都要快速简单,docker的出现有效的解决了在微服务的架构下,服务粒度细,服务数量多所导致的开发环境搭建,部署和运维成本高的问题.如上图中的docker图标,这只托着许多集装箱">
+<meta property="og:description" content="启动docker引擎1service docker start 重启docker引擎1service docker restart 查看docker版本1docker version docker镜像常用操作查看本地所有镜像123456docker imagesREPOSITORY                            TAG                 IMAGE ID">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:image" content="https://upload-images.jianshu.io/upload_images/5104125-2baddc7f5b6a28be.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
-<meta property="og:image" content="https://upload-images.jianshu.io/upload_images/5104125-8e87b9b958c8cd0e.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
-<meta property="og:image" content="https://upload-images.jianshu.io/upload_images/5104125-035e07a79b1ee0f4.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
-<meta property="og:image" content="https://upload-images.jianshu.io/upload_images/5104125-43081269a80a0216.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
-<meta property="og:image" content="https://upload-images.jianshu.io/upload_images/5104125-8b63c12daf7ddc11.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
-<meta property="og:image" content="https://upload-images.jianshu.io/upload_images/5104125-4ab0bb49063574d3.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
-<meta property="og:image" content="https://upload-images.jianshu.io/upload_images/5104125-ded9e28331812f44.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
-<meta property="og:image" content="https://upload-images.jianshu.io/upload_images/5104125-270ca3ef93148600.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
-<meta property="og:image" content="https://upload-images.jianshu.io/upload_images/5104125-bd04ce8ddfad7c36.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
-<meta property="og:image" content="https://upload-images.jianshu.io/upload_images/5104125-84861ab381d2e25e.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
-<meta property="og:image" content="https://upload-images.jianshu.io/upload_images/5104125-f2a085e48fad59c9.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
-<meta property="og:image" content="https://upload-images.jianshu.io/upload_images/5104125-15078ac89e47db7a.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
-<meta property="og:updated_time" content="2018-07-29T07:59:10.815Z">
+<meta property="og:updated_time" content="2018-07-29T09:39:39.360Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="Docker入门学习">
-<meta name="twitter:description" content="Docker简介docker诞生于2013年初,是dotCloud公司发布的一款轻量级的、开源的Linux应用容器引擎,它基于go语言实现,并且允许开发者将应用及其依赖打包到一个可移植的镜像中,它使得测试与部署比以往任何时候都要快速简单,docker的出现有效的解决了在微服务的架构下,服务粒度细,服务数量多所导致的开发环境搭建,部署和运维成本高的问题.如上图中的docker图标,这只托着许多集装箱">
-<meta name="twitter:image" content="https://upload-images.jianshu.io/upload_images/5104125-2baddc7f5b6a28be.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+<meta name="twitter:title" content="Docker常用命令学习">
+<meta name="twitter:description" content="启动docker引擎1service docker start 重启docker引擎1service docker restart 查看docker版本1docker version docker镜像常用操作查看本地所有镜像123456docker imagesREPOSITORY                            TAG                 IMAGE ID">
 
 
 
@@ -133,13 +120,13 @@
 
 
 
-  <link rel="canonical" href="http://yoursite.com/2018/07/29/Docker入门学习/"/>
+  <link rel="canonical" href="http://yoursite.com/2018/07/29/Docker常用命令学习/"/>
 
 
 
 
 
-  <title>Docker入门学习 | william-zzw</title>
+  <title>Docker常用命令学习 | william-zzw</title>
   
 
 
@@ -276,7 +263,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/07/29/Docker入门学习/">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/07/29/Docker常用命令学习/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="william.zhang">
@@ -293,7 +280,7 @@
 
         
         
-          <h1 class="post-title" itemprop="name headline">Docker入门学习</h1>
+          <h1 class="post-title" itemprop="name headline">Docker常用命令学习</h1>
         
 
         <div class="post-meta">
@@ -305,7 +292,7 @@
               
                 <span class="post-meta-item-text">发表于</span>
               
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-07-29T15:45:48+08:00">
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-07-29T17:39:49+08:00">
                 2018-07-29
               </time>
             
@@ -364,7 +351,7 @@
                   <span class="post-meta-item-text">字数统计&#58;</span>
                 
                 <span title="字数统计">
-                  1,146 字
+                  1,432 字
                 </span>
               
 
@@ -380,7 +367,7 @@
                   <span class="post-meta-item-text">阅读时长 &asymp;</span>
                 
                 <span title="阅读时长">
-                  4 分钟
+                  6 分钟
                 </span>
               
             </div>
@@ -401,22 +388,29 @@
       
 
       
-        <h1 id="Docker简介"><a href="#Docker简介" class="headerlink" title="Docker简介"></a>Docker简介</h1><p>docker诞生于2013年初,是dotCloud公司发布的一款轻量级的、开源的Linux应用容器引擎,它基于go语言实现,并且允许开发者将应用及其依赖打包到一个可移植的镜像中,它使得测试与部署比以往任何时候都要快速简单,docker的出现有效的解决了在微服务的架构下,服务粒度细,服务数量多所导致的开发环境搭建,部署和运维成本高的问题.<br><img src="https://upload-images.jianshu.io/upload_images/5104125-2baddc7f5b6a28be.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="image.png"><br>如上图中的docker图标,这只托着许多集装箱的鲸鱼就相当于一个docker引擎,上面的集装箱则相当于相互隔离的docker容器,每个容器中都运行着自己的应用程序.</p>
-<h1 id="Docker与传统虚拟机的区别"><a href="#Docker与传统虚拟机的区别" class="headerlink" title="Docker与传统虚拟机的区别"></a>Docker与传统虚拟机的区别</h1><p>docker的技术架构:<br><img src="https://upload-images.jianshu.io/upload_images/5104125-8e87b9b958c8cd0e.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="image.png"><br>传统虚拟机的技术架构:<br><img src="https://upload-images.jianshu.io/upload_images/5104125-035e07a79b1ee0f4.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="image.png"><br>两者的主要区别是:</p>
-<ul>
-<li>docker容器可以在秒级启动,传统的虚拟机启动一般为分钟级.</li>
-<li>docker容器基于进程隔离,且共享操作系统内核,占用空间非常小,一般为M级别,虚拟机是在物理硬件层面上的虚拟化,每个虚拟机必须包含一整套操作系统,应用程序和依赖库等,占用空间一般为G级别.</li>
-<li>docker容器对系统资源的利用率很高,单机可启动上千个docker容器,而虚拟机需要模拟硬件与网络资源,会占用大量系统开销,单机一般最多只能启动几十个虚拟机.</li>
-</ul>
-<h1 id="Docker的架构"><a href="#Docker的架构" class="headerlink" title="Docker的架构"></a>Docker的架构</h1><p>docker使用c/s架构,client 通过接口与server进程通信实现容器的构建,运行和发布.client和server可以运行在同一台集群,也可以通过跨主机实现远程通信.<br><img src="https://upload-images.jianshu.io/upload_images/5104125-43081269a80a0216.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="image.png"><br>docker的几个核心概念:</p>
-<ul>
-<li>docker引擎(Docker Engine)<br>docker引擎即运行在宿主机(DOCKER_HOST)上的一个后台进程,也称为Docker Daemon,其本质上就是一个服务,只要启动该服务就可以通过docker客户端发送相关的命令与引擎通讯了.</li>
-<li>docker客户端<br>docker客户端是和后台服务交互的主要工具,客户端有两种,一种是命令行工具,输入docker命令后,后台服务就能执行该命令了,另一种是REST API,一般在应用程序中我们使用REST API来与docker引擎交互.</li>
-<li>docker镜像(Docker Image)<br>镜像是只读的指令模板,用于创建docker容器,与系统光盘有点类似,用户可以构建镜像或下载使用其他人构建的镜像,我们只需读取镜像便能将其载入docker引擎中,并启动一个容器运行镜像中的程序.</li>
-<li>docker容器<br>docker容器是docker镜像的可运行实例,当我们获取到镜像后,可随时运行该镜像,此时便会启动一个docker容器,容器中将运行镜像中的应用程序,用户可以使用docker api或者命令行来运行、启动、停止、移动或删除容器,运行容器时可以提供配置元数据,例如网络信息或环境变量,容器是一个隔离安全的应用程序平台,但可以访问在不同主机或容器中运行的资源,以及持久存储或数据库.</li>
-<li>docker镜像注册中心(Docker Registry)<br>docker官方提供了一个Docker Hub的镜像注册中心,用于存放公开的和私有的镜像仓库(Docker Respository),当然我们也可以在本地局域网搭建自己的注册中心,当用户使用docker pull或者docker run时就会从注册中心中下载镜像,当使用push时就会推送我们的镜像到镜像中心去.</li>
-</ul>
-<h1 id="Docker的安装使用"><a href="#Docker的安装使用" class="headerlink" title="Docker的安装使用"></a>Docker的安装使用</h1><p>docker官方建议将docker安装运行在linux系统上,在linux系统上可以直接运行docker引擎,在mac osx或者windows系统上需要通过linux vm才能运行docker 引擎.,我们在本地centos7.3上安装docker,且必须同时满足CPU为64位,Linux内核版本为3.10以上.<br>安装步骤:<br>1.执行yum update 更新yum包安装最新的docker.<br>2.添加yum的docker仓库包<br><img src="https://upload-images.jianshu.io/upload_images/5104125-8b63c12daf7ddc11.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="image.png"><br>3.安装docker引擎<br><img src="https://upload-images.jianshu.io/upload_images/5104125-4ab0bb49063574d3.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="image.png"><br>4.启动docker<br><img src="https://upload-images.jianshu.io/upload_images/5104125-ded9e28331812f44.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="image.png"><br>5.查看docker版本<br><img src="https://upload-images.jianshu.io/upload_images/5104125-270ca3ef93148600.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="image.png"><br>6.使用docker国内镜像<br><img src="https://upload-images.jianshu.io/upload_images/5104125-bd04ce8ddfad7c36.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="image.png"><br>下面来看看两个docker的简单使用<br>运行docker自带的hello world程序<br><img src="https://upload-images.jianshu.io/upload_images/5104125-84861ab381d2e25e.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="image.png"><br>以后台模式在80端口启动nginx服务<br><img src="https://upload-images.jianshu.io/upload_images/5104125-f2a085e48fad59c9.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="image.png"><br>打开浏览器输入<a href="http://192.168.56.101可以看到" target="_blank" rel="noopener">http://192.168.56.101可以看到</a><br><img src="https://upload-images.jianshu.io/upload_images/5104125-15078ac89e47db7a.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="image.png"></p>
+        <p><strong>启动docker引擎</strong><br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">service docker start</span><br></pre></td></tr></table></figure></p>
+<p><strong>重启docker引擎</strong><br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">service docker restart</span><br></pre></td></tr></table></figure></p>
+<p><strong>查看docker版本</strong><br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker version</span><br></pre></td></tr></table></figure></p>
+<p><strong>docker镜像常用操作</strong><br><strong>查看本地所有镜像</strong><br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">docker images</span><br><span class="line">REPOSITORY                            TAG                 IMAGE ID            CREATED             SIZE</span><br><span class="line">192.168.56.101:5000/hello/hello-api   1.0.0               c1cefec5b8a8        17 hours ago        673MB</span><br><span class="line">nginx                                 latest              c82521676580        4 days ago          109MB</span><br><span class="line">registry                              latest              b2b03e9146e1        3 weeks ago         33.3MB</span><br><span class="line">java                                  8                   d23bdf5b1b1b        18 months ago       643MB</span><br></pre></td></tr></table></figure></p>
+<p>其中REPOSITORY表示镜像仓库的名称.<br>TAG:表示镜像的标签,一般情况下带有具体的版本或别名,如1.0.0是版本,latest是最新版.<br>IMAGE ID:表示镜像的标识符ID,具有唯一性,是64位完整镜像ID的缩略表示形式.<br>CREATED:表示镜像创建时间离现在是多久了.<br>SIZE:镜像的字节大小.</p>
+<p><strong>在docker hub中搜索镜像</strong><br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">docker search dubbo</span><br><span class="line">NAME                                  DESCRIPTION                                     STARS     OFFICIAL   AUTOMATED</span><br><span class="line">calee2005/dubbo                       Alibaba Dubbo RPC Framework build               6                    [OK]</span><br><span class="line">chenchuxin/dubbo-admin                dubbo admin docker                              5                    [OK]</span><br><span class="line">webuilder/dubboadmin                  Dubbo Admin v2.8.4 with tomcat 9                3                    </span><br><span class="line">lemonguge/dubbo-admin                 dubbo-admin版本为2.5.3                             3</span><br></pre></td></tr></table></figure></p>
+<p>上面搜索出来的结果:<br>NAME:是镜像仓库的名称.<br>DESCRIPTION:是镜像仓库的描述.<br>STARS:是镜像仓库的收藏数.<br>OFFICIAL:表示是否为官方仓库.<br>AUTOMATED:表示是否为自动构建仓库.<br><strong>导出镜像文件</strong><br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker save dubbo &gt; dubbo.tar</span><br></pre></td></tr></table></figure></p>
+<p>若不指定文件路径则将镜像导出到当前目录上.<br><strong>导入镜像文件</strong><br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker load &lt; dubbo.tar</span><br></pre></td></tr></table></figure></p>
+<p>前面导出的镜像文件可在其他机器上导入.<br>在本地镜像中心或者docker hub拉取最新版本的镜像<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker pull centos</span><br></pre></td></tr></table></figure></p>
+<p><strong>删除本地镜像</strong><br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker rmi 镜像ID</span><br></pre></td></tr></table></figure></p>
+<p>其中镜像ID可由docker images列出来查看,另外如果此镜像已经启动了容器,执行rmi时会提示删除不了:Error response from daemon: conflict: unable to delete c1cefec5b8a8 (cannot be forced) - image is being used by running container d120894324c5,意思是已经有容器在运行了,要先删除运行中的容器才能删除此镜像.<br><strong>docker容器常用操作</strong><br><strong>运行容器</strong><br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">[root@bogon /]# docker run -d -p 58080:8080 192.168.56.101:5000/hello/hello-api:1.0.0</span><br><span class="line">d120894324c5e024658616f61dfa5f29317dd1ca87994b5ee933056eeacf0a70</span><br></pre></td></tr></table></figure></p>
+<p>docker run命令后可加不同的参数如常用的:<br>-d表示在后头启动该容器并返回容器ID,默认情况下容器是在前台启动的.<br>-p表示对容器中应用程序暴露的端口进行映射,左边端口58080为宿主机的的端口,右边端口8080为容器中应用程序暴露的端口.<br>-i: 以交互模式运行容器，通常与 -t 同时使用.<br>-t: 为容器重新分配一个伪输入终端，通常与 -i 同时使用.<br>–name=”xxx”: 为容器指定一个名称.<br>-m :设置容器使用内存最大值.<br>–expose=[]: 开放一个端口或一组端口.<br>-v:添加数据卷,用于将宿主机上的磁盘挂载到容器中,可理解为目录映射,数据卷的表达格式为”宿主机路径:容器路径”,宿主机路径可以为相对路径,容器路径必须为绝对路径,多次使用-v,可同时挂载多个宿主机路径到容器中.<br><strong>查看当前正在运行的容器</strong><br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">docker ps </span><br><span class="line">CONTAINER ID        IMAGE                                       COMMAND                  CREATED             STATUS              PORTS                     NAMES</span><br><span class="line">d120894324c5        192.168.56.101:5000/hello/hello-api:1.0.0   &quot;/bin/sh -c &apos;java ...&quot;   21 minutes ago      Up 21 minutes       0.0.0.0:58080-&gt;8080/tcp   confident_lewin</span><br><span class="line">ffac4cc26314        registry:latest                             &quot;/entrypoint.sh /e...&quot;   45 hours ago        Up 4 hours          0.0.0.0:5000-&gt;5000/tcp    registry</span><br></pre></td></tr></table></figure></p>
+<p>其中CONTAINER ID为容器ID,IMAGE是镜像名称,COMMAND:表示容器启动时运行的命令,docker要求启动容器时需要运行一个命令.<br>CREATED:容器创建时间,STATUS:表示容器运行的状态,UP为运行中,Exited为已退出.PORTS:容器对外暴露的端口.NAMES:容器名称,由docker引擎自动生成,可以在docker run命令中通过–name来指定.<br><strong>docker ps也包括一些常见的选项：</strong><br>-a :显示所有的容器,包括未运行的.<br>-f :根据条件过滤显示的内容.<br>–format :指定返回值的模板文件.<br>-l :显示最近创建的容器.<br>-n :列出最近创建的n个容器.<br>–no-trunc :不截断输出.<br>-q :静默模式,只显示容器编号.<br>-s :显示总的文件大小.<br><strong>进入docker容器</strong><br>有两种方法进入容器:attach和exec.<br>attach 方式:<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker attach 容器ID或者容器名称</span><br></pre></td></tr></table></figure></p>
+<p>要attach上去的容器必须正在运行,可以同时连接上同一个container来共享屏幕(与screen命令的attach类似).<br>exec方式:<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker exec -it &lt;容器ID|容器Name&gt; bash|sh</span><br></pre></td></tr></table></figure></p>
+<p>attach 与 exec 主要区别如下:<br>attach直接进入容器启动命令的终端,不会启动新的进程.<br>exec 则是在容器中打开新的终端,并且可以启动新的进程.<br>如果想直接在终端中查看启动命令的输出用attach,其他情况使用exec.<br><strong>停止容器</strong><br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker stop 容器ID|容器Name</span><br></pre></td></tr></table></figure></p>
+<p><strong>终止容器</strong><br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker kill 容器ID|容器Name</span><br></pre></td></tr></table></figure></p>
+<p><strong>删除容器</strong><br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker rm 容器ID|容器Name</span><br></pre></td></tr></table></figure></p>
+<p>注意删除正在运行的容器时需先kill掉此容器,才能成功删除.<br><strong>启动容器</strong><br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker start 容器ID|容器Name</span><br></pre></td></tr></table></figure></p>
+<p><strong>重启容器</strong><br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker restart 容器ID|容器Name</span><br></pre></td></tr></table></figure></p>
+<p><strong>导出容器</strong><br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker export 容器ID &gt; dubbo.tar</span><br></pre></td></tr></table></figure></p>
+<p>若不指定路径则导出在当前目录上.<br><strong>导入容器</strong><br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker import dubbo.tar dubbo:latest</span><br></pre></td></tr></table></figure></p>
+<p>导出的容器可在另一台机器上导入为镜像.<br>有时候启动容器后,需要查看容器运行的日志可执行以下命令.<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker logs -f -t --tail 200 容器Name</span><br></pre></td></tr></table></figure></p>
+<p>参考：<br><a href="http://www.runoob.com/docker/docker-command-manual.html" target="_blank" rel="noopener">http://www.runoob.com/docker/docker-command-manual.html</a></p>
 
       
     </div>
@@ -447,8 +441,8 @@
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/2018/07/13/Shiro是如何拦截未登录请求的(二)/" rel="next" title="Shiro是如何拦截未登录请求的(二)">
-                <i class="fa fa-chevron-left"></i> Shiro是如何拦截未登录请求的(二)
+              <a href="/2018/07/29/Docker入门学习/" rel="next" title="Docker入门学习">
+                <i class="fa fa-chevron-left"></i> Docker入门学习
               </a>
             
           </div>
@@ -456,10 +450,6 @@
           <span class="post-nav-divider"></span>
 
           <div class="post-nav-prev post-nav-item">
-            
-              <a href="/2018/07/29/Docker常用命令学习/" rel="prev" title="Docker常用命令学习">
-                Docker常用命令学习 <i class="fa fa-chevron-right"></i>
-              </a>
             
           </div>
         </div>
@@ -511,17 +501,8 @@
       
 
       
-        <ul class="sidebar-nav motion-element">
-          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
-            文章目录
-          </li>
-          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
-            站点概览
-          </li>
-        </ul>
-      
 
-      <section class="site-overview-wrap sidebar-panel">
+      <section class="site-overview-wrap sidebar-panel sidebar-panel-active">
         <div class="site-overview">
           <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
             
@@ -599,22 +580,6 @@
         </div>
       </section>
 
-      
-      <!--noindex-->
-        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
-          <div class="post-toc">
-
-            
-              
-            
-
-            
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Docker简介"><span class="nav-number">1.</span> <span class="nav-text">Docker简介</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Docker与传统虚拟机的区别"><span class="nav-number">2.</span> <span class="nav-text">Docker与传统虚拟机的区别</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Docker的架构"><span class="nav-number">3.</span> <span class="nav-text">Docker的架构</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Docker的安装使用"><span class="nav-number">4.</span> <span class="nav-text">Docker的安装使用</span></a></li></ol></div>
-            
-
-          </div>
-        </section>
-      <!--/noindex-->
       
 
       
