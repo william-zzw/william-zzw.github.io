@@ -88,7 +88,7 @@
 <meta property="og:description" content="前言搭建一个简单的Spring Boot项目与Docker技术进行整合,使用Maven来构建Docker镜像并推送至本地Docker Registry,最后对项目进行部署时只需根据镜像启动相应的容器即可. 环境搭建 JDK1.8 Spring Boot 1.5.7 Maven 3.3.9 Docker   1.使用IDEA新建一个Spring Boot项目,在pom.xml中添加如下配置:1234">
 <meta property="og:locale" content="zh-Hans">
 <meta property="og:image" content="https://upload-images.jianshu.io/upload_images/5104125-1213517962838958.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
-<meta property="og:updated_time" content="2018-07-30T09:12:03.239Z">
+<meta property="og:updated_time" content="2018-07-30T09:16:49.861Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="使用Docker部署SpringBoot">
 <meta name="twitter:description" content="前言搭建一个简单的Spring Boot项目与Docker技术进行整合,使用Maven来构建Docker镜像并推送至本地Docker Registry,最后对项目进行部署时只需根据镜像启动相应的容器即可. 环境搭建 JDK1.8 Spring Boot 1.5.7 Maven 3.3.9 Docker   1.使用IDEA新建一个Spring Boot项目,在pom.xml中添加如下配置:1234">
@@ -353,7 +353,7 @@
                   <span class="post-meta-item-text">字数统计&#58;</span>
                 
                 <span title="字数统计">
-                  2,327 字
+                  2,337 字
                 </span>
               
 
@@ -422,7 +422,7 @@
 <p>好了,我们可以看到镜像已经构建成功了.<br><strong>9.接下来就是把已经构建好的镜像推送到Docker Registry了.</strong><br>我们执行mvn docker:build docker:push命令<br>然后打开linux终端,输入命令docker images查看所有的镜像:<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">[root@bogon ~]# docker images</span><br><span class="line">REPOSITORY                            TAG                 IMAGE ID            CREATED             SIZE</span><br><span class="line">192.168.56.101:5000/hello/hello-api   1.0.0               68bbcea2575f        2 minutes ago       673MB</span><br><span class="line">nginx                                 latest              c82521676580        5 days ago          109MB</span><br><span class="line">registry                              latest              b2b03e9146e1        3 weeks ago         33.3MB</span><br><span class="line">java                                  8                   d23bdf5b1b1b        18 months ago       643MB</span><br><span class="line">[root@bogon ~]#</span><br></pre></td></tr></table></figure></p>
 <p>可以看到”192.168.56.101:5000/hello/hello-api”这个镜像,说明我们已经把镜像成功推送到注册中心了.<br><strong>10.最后一步就是运行该镜像,启动容器并将容器的8080端口绑定到宿主机的58080端口上:</strong><br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">[root@bogon ~]# docker run -d -p 58080:8080 192.168.56.101:5000/hello/hello-api:1.0.0</span><br><span class="line">9d9363d1213df621c3f610b3466d265332ef42600461ae3e50ff25418b751b65</span><br><span class="line">[root@bogon ~]#</span><br></pre></td></tr></table></figure></p>
 <p>执行以下命令验证服务是否启动成功:<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">[root@bogon /]# curl -XGET http://192.168.56.101:58080//hello/hi</span><br><span class="line">hi[root@bogon /]#</span><br></pre></td></tr></table></figure></p>
-<p>返回字符串”hi”,说明已经成功使用Docker部署Spring Boot项目了.<br>参考资料:<br><a href="https://blog.csdn.net/qq_27808181/article/details/78421134" target="_blank" rel="noopener">https://blog.csdn.net/qq_27808181/article/details/78421134</a><br><a href="https://blog.csdn.net/faryang/article/details/75949611" target="_blank" rel="noopener">https://blog.csdn.net/faryang/article/details/75949611</a></p>
+<p>返回字符串”hi”,说明已经成功使用Docker部署Spring Boot项目了.<br>参考资料:<br><a href="https://blog.csdn.net/qq_27808181/article/details/78421134" target="_blank" rel="noopener">https://blog.csdn.net/qq_27808181/article/details/78421134</a><br><a href="https://blog.csdn.net/faryang/article/details/75949611" target="_blank" rel="noopener">https://blog.csdn.net/faryang/article/details/75949611</a><br><a href="https://www.cnblogs.com/zqifa/p/linux-docker-3.html" target="_blank" rel="noopener">https://www.cnblogs.com/zqifa/p/linux-docker-3.html</a></p>
 
       
     </div>
