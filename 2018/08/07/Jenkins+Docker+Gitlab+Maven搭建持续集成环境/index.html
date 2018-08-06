@@ -1,0 +1,899 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="Docker,Gitlab,Jenkins,Maven,持续集成," />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="前言在应用还处于单体架构的时候,交付周期通常都以周、月为单位,在这种情况下,项目的部署一般都是由开发人员手动将程序代码打成一个大的war包然后通过SSH工具拖拽到服务器上,执行shell脚本进行部署,整个过程虽然缺乏一个完善、自动化的流程,但是基本可以满足企业的需求,然而随着业务的发展,用户需求的个性化,原先的单体应用逐步演进为微服务的架构,项目面临着的大量构建和部署工作,运维成本较高,我们希望通">
+<meta name="keywords" content="Docker,Gitlab,Jenkins,Maven,持续集成">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Jenkins+Docker+Gitlab+Maven搭建持续集成环境">
+<meta property="og:url" content="http://yoursite.com/2018/08/07/Jenkins+Docker+Gitlab+Maven搭建持续集成环境/index.html">
+<meta property="og:site_name" content="william-zzw">
+<meta property="og:description" content="前言在应用还处于单体架构的时候,交付周期通常都以周、月为单位,在这种情况下,项目的部署一般都是由开发人员手动将程序代码打成一个大的war包然后通过SSH工具拖拽到服务器上,执行shell脚本进行部署,整个过程虽然缺乏一个完善、自动化的流程,但是基本可以满足企业的需求,然而随着业务的发展,用户需求的个性化,原先的单体应用逐步演进为微服务的架构,项目面临着的大量构建和部署工作,运维成本较高,我们希望通">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="https://upload-images.jianshu.io/upload_images/5104125-259f0d95c4ea68ce.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+<meta property="og:image" content="https://upload-images.jianshu.io/upload_images/5104125-ec354811442276a3.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+<meta property="og:image" content="https://upload-images.jianshu.io/upload_images/5104125-cbd61f21e3c92a35.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+<meta property="og:image" content="https://upload-images.jianshu.io/upload_images/5104125-7e984a25193abb46.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+<meta property="og:image" content="https://upload-images.jianshu.io/upload_images/5104125-4a17d5bdca00de8a.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+<meta property="og:image" content="https://upload-images.jianshu.io/upload_images/5104125-0ad64ac195846764.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+<meta property="og:image" content="https://upload-images.jianshu.io/upload_images/5104125-e397a615e8010549.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+<meta property="og:image" content="https://upload-images.jianshu.io/upload_images/5104125-9a3b3c623ddd656a.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+<meta property="og:image" content="https://upload-images.jianshu.io/upload_images/5104125-415f2e465aebbc7f.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+<meta property="og:image" content="https://upload-images.jianshu.io/upload_images/5104125-b53eb98bf29e189a.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+<meta property="og:image" content="https://upload-images.jianshu.io/upload_images/5104125-e9eb4dd0ed8f4b49.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+<meta property="og:image" content="https://upload-images.jianshu.io/upload_images/5104125-0f2c5f623ad74c2d.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+<meta property="og:image" content="https://upload-images.jianshu.io/upload_images/5104125-aa273372599cd1d0.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+<meta property="og:image" content="https://upload-images.jianshu.io/upload_images/5104125-96197c3fcc0b579c.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+<meta property="og:image" content="https://upload-images.jianshu.io/upload_images/5104125-694dc087c256b2d4.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+<meta property="og:image" content="https://upload-images.jianshu.io/upload_images/5104125-8c76c0277ee04331.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+<meta property="og:image" content="https://upload-images.jianshu.io/upload_images/5104125-86ec94614b32a55e.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+<meta property="og:image" content="https://upload-images.jianshu.io/upload_images/5104125-2e7605af35bec881.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+<meta property="og:image" content="https://upload-images.jianshu.io/upload_images/5104125-c8ef290c5bee3f44.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+<meta property="og:image" content="https://upload-images.jianshu.io/upload_images/5104125-143855e08d8b680c.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+<meta property="og:image" content="https://upload-images.jianshu.io/upload_images/5104125-947693dccc896c2b.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+<meta property="og:image" content="https://upload-images.jianshu.io/upload_images/5104125-a884d7ab872eacd9.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+<meta property="og:image" content="https://upload-images.jianshu.io/upload_images/5104125-c538d38eb08cfd86.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+<meta property="og:image" content="https://upload-images.jianshu.io/upload_images/5104125-ae2637f70ad7afc1.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+<meta property="og:image" content="https://upload-images.jianshu.io/upload_images/5104125-7327a641c04e130e.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+<meta property="og:image" content="https://upload-images.jianshu.io/upload_images/5104125-0055e78218b6e301.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+<meta property="og:image" content="https://upload-images.jianshu.io/upload_images/5104125-7079794e8a89db05.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+<meta property="og:image" content="https://upload-images.jianshu.io/upload_images/5104125-b3c71f0a79795076.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+<meta property="og:image" content="https://upload-images.jianshu.io/upload_images/5104125-82a1d68ddf1b5605.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+<meta property="og:image" content="https://upload-images.jianshu.io/upload_images/5104125-cc3bb5fb9f501e56.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+<meta property="og:image" content="https://upload-images.jianshu.io/upload_images/5104125-276aef108edb001a.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+<meta property="og:image" content="https://upload-images.jianshu.io/upload_images/5104125-eb72cb93214d1e49.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+<meta property="og:image" content="https://upload-images.jianshu.io/upload_images/5104125-ea5563c3ac7b8cf4.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+<meta property="og:updated_time" content="2018-08-06T16:14:11.898Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Jenkins+Docker+Gitlab+Maven搭建持续集成环境">
+<meta name="twitter:description" content="前言在应用还处于单体架构的时候,交付周期通常都以周、月为单位,在这种情况下,项目的部署一般都是由开发人员手动将程序代码打成一个大的war包然后通过SSH工具拖拽到服务器上,执行shell脚本进行部署,整个过程虽然缺乏一个完善、自动化的流程,但是基本可以满足企业的需求,然而随着业务的发展,用户需求的个性化,原先的单体应用逐步演进为微服务的架构,项目面临着的大量构建和部署工作,运维成本较高,我们希望通">
+<meta name="twitter:image" content="https://upload-images.jianshu.io/upload_images/5104125-259f0d95c4ea68ce.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: 'William-zzw'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2018/08/07/Jenkins+Docker+Gitlab+Maven搭建持续集成环境/"/>
+
+
+
+
+
+  <title>Jenkins+Docker+Gitlab+Maven搭建持续集成环境 | william-zzw</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">william-zzw</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/08/07/Jenkins+Docker+Gitlab+Maven搭建持续集成环境/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="william.zhang">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/uploads/images/avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="william-zzw">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">Jenkins+Docker+Gitlab+Maven搭建持续集成环境</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-08-07T00:13:03+08:00">
+                2018-08-07
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Docker/" itemprop="url" rel="index">
+                    <span itemprop="name">Docker</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+            <span class="post-meta-divider">|</span>
+            <span class="page-pv"><i class="fa fa-file-o"></i> 浏览
+            <span class="busuanzi-value" id="busuanzi_value_page_pv" ></span>次
+            </span>
+          
+
+          
+            <div class="post-wordcount">
+              
+                
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-file-word-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">字数统计&#58;</span>
+                
+                <span title="字数统计">
+                  2,820 字
+                </span>
+              
+
+              
+                <span class="post-meta-divider">|</span>
+              
+
+              
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-clock-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">阅读时长 &asymp;</span>
+                
+                <span title="阅读时长">
+                  11 分钟
+                </span>
+              
+            </div>
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>在应用还处于单体架构的时候,交付周期通常都以周、月为单位,在这种情况下,项目的部署一般都是由开发人员手动将程序代码打成一个大的war包然后通过SSH工具拖拽到服务器上,执行shell脚本进行部署,整个过程虽然缺乏一个完善、自动化的流程,但是基本可以满足企业的需求,然而随着业务的发展,用户需求的个性化,原先的单体应用逐步演进为微服务的架构,项目面临着的大量构建和部署工作,运维成本较高,我们希望通过docker等容器化技术加快项目的迭代并借助于jenkins的持续集成,可以快速把应用打包成docker镜像,实现自动部署,来降低运维的成本.</p>
+<h1 id="持续集成"><a href="#持续集成" class="headerlink" title="持续集成"></a>持续集成</h1><p>持续集成(Continuous Integration简称CI)是利用一系列的工具、方法与规则,做到快速的构建代码,并自动的进行测试,从而提高代码的效率和质量.<br><img src="https://upload-images.jianshu.io/upload_images/5104125-259f0d95c4ea68ce.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="image.png"><br>大致的步骤如下:</p>
+<ul>
+<li>开发人员通过IDE工具将代码推送到gitlab.</li>
+<li>jenkins从gitlab中获取到源码,并使用maven编译、打包、自动构建镜像.</li>
+<li>jenkins在构建脚本中调用docker命令将构建好的镜像push到本地Docker Registry.并启动相应的容器.</li>
+<li>jenkins构建失败或者成功,可以及时将结果推送给相关人员,比如测试人员,安排测试.</li>
+<li>运维人员只需获取相应的镜像就可以快速发布到生产环境.</li>
+</ul>
+<h1 id="环境搭建"><a href="#环境搭建" class="headerlink" title="环境搭建"></a>环境搭建</h1><p>本地开发环境为windows环境,开发工具为IntelliJ IDEA.<br><strong>1.本地下载并安装git客户端Git-2.14.1-64-bit</strong><br><strong>2.在虚拟机上搭建gitlab</strong><br>拉取gitlab镜像<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">[root@bogon /]# docker pull gitlab/gitlab-ce</span><br><span class="line">Using default tag: latest</span><br><span class="line">latest: Pulling from gitlab/gitlab-ce</span><br><span class="line">8ee29e426c26: Pull complete </span><br><span class="line">6e83b260b73b: Pull complete </span><br><span class="line">e26b65fd1143: Pull complete </span><br><span class="line">40dca07f8222: Pull complete </span><br><span class="line">b420ae9e10b3: Pull complete </span><br><span class="line">a218309dd589: Pull complete </span><br><span class="line">5c60fd7ba0ce: Pull complete </span><br><span class="line">659c2144b5a3: Pull complete </span><br><span class="line">8289bbac0d0e: Pull complete </span><br><span class="line">31bbd150e8a7: Pull complete </span><br><span class="line">9114e78243fa: Pull complete </span><br><span class="line">Digest: sha256:3fcabe86e077db438240b214048a1561c6b89c259dbffdaa191f8f3d3119b4cb</span><br><span class="line">Status: Downloaded newer image for gitlab/gitlab-ce:latest</span><br></pre></td></tr></table></figure></p>
+<p>启动gitlab镜像<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">[root@bogon /]# docker run --detach \</span><br><span class="line">&gt; --hostname gitlab.william.com \</span><br><span class="line">&gt; --publish 8443:443 --publish 48080:80 --publish 8022:22 \</span><br><span class="line">&gt; --name gitlab \</span><br><span class="line">&gt; --restart always \</span><br><span class="line">&gt; --volume /opt/gitlab/config:/etc/gitlab \</span><br><span class="line">&gt; --volume /opt/gitlab/logs:/var/log/gitlab \</span><br><span class="line">&gt; --volume /opt/gitlab/data:/var/opt/gitlab \</span><br><span class="line">&gt; gitlab/gitlab-ce:latest</span><br><span class="line">e19375a8f2b2a76e6dae2ecd5e7b0d5864c7a2e9975bfc4274cb166cd5091b7b</span><br></pre></td></tr></table></figure></p>
+<p>注意上面的docker run命令指定了域名为gitlab.william.com,所以在gitlab容器启动前要先在虚拟机和本地配置ip与域名的映射关系.<br>在linux下:<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">vi /etc/hosts</span><br></pre></td></tr></table></figure></p>
+<p>在最下面添加添加<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">192.168.56.101 gitlab.william.com</span><br></pre></td></tr></table></figure></p>
+<p>在windows下:<br>修改C:\Windows\System32\drivers\etc\hosts文件,添加192.168.56.101 gitlab.william.com<br>另外我们指定了三个端口,22表示ssh端口,80表示http端口,443表示https端口,分别映射到宿主机上的8022、48080和8443端口,我们还通过–volume指定目录映射,其中</p>
+<ul>
+<li>/etc/gitlab表示gitlab的配置目录,映射到宿主机的/opt/gitlab/config目录.</li>
+<li>/var/log/gitlab表示gitlab的日志目录,映射到宿主机的/opt/gitlab/logs目录.</li>
+<li>/var/opt/gitlab表示gitlab的数据目录,映射到宿主机的/opt/gitlab/data目录.</li>
+</ul>
+<p>打开浏览器发现<a href="http://gitlab.william.com:48080访问不了" target="_blank" rel="noopener">http://gitlab.william.com:48080访问不了</a><br>查看48080端口是否开启<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">[root@bogon /]# firewall-cmd --zone=public --query-port=48080/tcp</span><br><span class="line">no</span><br></pre></td></tr></table></figure></p>
+<p>很明显需要开启48080端口<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">[root@bogon /]# firewall-cmd --zone=public --add-port=48080/tcp --permanent</span><br><span class="line">success</span><br><span class="line">[root@bogon /]# firewall-cmd --reload</span><br><span class="line">success</span><br></pre></td></tr></table></figure></p>
+<p>再次打开浏览器<a href="http://gitlab.william.com:48080后重定向进入修改管理员密码页面,我们将密码修改为12345678" target="_blank" rel="noopener">http://gitlab.william.com:48080后重定向进入修改管理员密码页面,我们将密码修改为12345678</a>.<br>修改完密码后接着进入管理登录页面,输入登录用户名密码root/12345678登录进去.<br><img src="https://upload-images.jianshu.io/upload_images/5104125-ec354811442276a3.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="image.png"><br>接下来新建一个空的项目my-msa-demo,其中my-msa-demo为项目名称，可设置可见性级别:</p>
+<ul>
+<li>Private表示私有项目,授予具体权限的用户才能访问.</li>
+<li>Internal表示内部项目,可登陆的用户都能克隆项目.</li>
+<li>Public表示公开项目,没有任何权限的用户都能克隆项目.</li>
+</ul>
+<p>项目创建完毕之后,开始进入主页面:<br><img src="https://upload-images.jianshu.io/upload_images/5104125-cbd61f21e3c92a35.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="image.png"><br>接着我们需要做的就是将本地java代码推送至gitlab中.<br>在推送之前先全局设置git<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">[root@bogon /]# git config --global user.name &quot;william.zhang&quot;</span><br><span class="line">[root@bogon /]# git config --global user.email &quot;952408421@qq.com&quot;</span><br></pre></td></tr></table></figure></p>
+<p><strong>3.使用IntelliJ IDEA 将项目发布(提交)到GitLab</strong><br>首先需要启用项目的版本管理功能,点击VCS 启用版本控制.<br><img src="https://upload-images.jianshu.io/upload_images/5104125-7e984a25193abb46.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="image.png"><br>然后右击项目,选择Git-&gt;add,将项目中的文件加入到git add中等待本地提交,add 后的文件都会由橙色变成绿色.<br>下一步本地提交代码,右击项目选择Git-&gt;Commit Directory…这时本地提交成功,可以看见文件颜色从绿色变成了黑色.<br>最后就是将代码push到远程git仓库了,右击项目 Git-&gt;Repository -&gt;Push<br><img src="https://upload-images.jianshu.io/upload_images/5104125-4a17d5bdca00de8a.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="image.png"><br>在Define Remote窗口里面的URL中填入<a href="http://gitlab.william.com:48080/root/my-msa-demo.git" target="_blank" rel="noopener">http://gitlab.william.com:48080/root/my-msa-demo.git</a><br>点击ok按钮弹出下面窗口<br><img src="https://upload-images.jianshu.io/upload_images/5104125-0ad64ac195846764.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="image.png"><br>输入用户名密码:root/12345678<br>然后开始push…<br><img src="https://upload-images.jianshu.io/upload_images/5104125-e397a615e8010549.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="image.png"><br>push成功之后刷新<a href="http://gitlab.william.com:48080/root/hello可以看到本地代码已经推送至gitlab了" target="_blank" rel="noopener">http://gitlab.william.com:48080/root/hello可以看到本地代码已经推送至gitlab了</a>.<br><img src="https://upload-images.jianshu.io/upload_images/5104125-9a3b3c623ddd656a.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="image.png"><br><strong>4.安装jenkins</strong><br>下载jenkins镜像<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">[root@bogon ~]# docker pull jenkinsci/jenkins</span><br><span class="line">Using default tag: latest</span><br><span class="line">latest: Pulling from jenkinsci/jenkins</span><br></pre></td></tr></table></figure></p>
+<p>然后开启38080端口,并启动jenkins容器.<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">[root@bogon ~]# docker run \</span><br><span class="line">&gt; -d \</span><br><span class="line">&gt; -p 38080:8080 \</span><br><span class="line">&gt; -p 50000:50000 \</span><br><span class="line">&gt; --name jenkins \</span><br><span class="line">&gt; --link gitlab:gitlab.william.com \</span><br><span class="line">&gt; -u root \</span><br><span class="line">&gt; -v /opt/jenkins:/var/jenkins_home \</span><br><span class="line">&gt; jenkinsci/jenkins:latest</span><br><span class="line">f7fa42d4e010833da5d9e5258855ac53d7d1c4855549e12992ceac236f3d583a</span><br></pre></td></tr></table></figure></p>
+<p>其中8080端口是jenkins的端口,5000端口是master和slave通信端口.并将宿主机maven和jdk映射到对应的容器目录上,同时通过配置–link连接gitlab,因为要与gitlab容器通讯下载代码.<br>打开浏览器<a href="http://192.168.56.101:38080/访问跳转到解锁jenkins页面" target="_blank" rel="noopener">http://192.168.56.101:38080/访问跳转到解锁jenkins页面</a>.<br><img src="https://upload-images.jianshu.io/upload_images/5104125-415f2e465aebbc7f.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="image.png"><br>服务器上以下执行命令查看密码<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">[root@bogon ~]# cat /var/jenkins_home/secrets/initialAdminPassword</span><br><span class="line">cat: /var/jenkins_home/secrets/initialAdminPassword: 没有那个文件或目录</span><br></pre></td></tr></table></figure></p>
+<p>由于之前启动jenkins容器时我们做了目录映射 -v /opt/jenkins:/var/jenkins_home \所以要将执行命令改为<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">[root@bogon ~]# cat /opt/jenkins/secrets/initialAdminPassword</span><br><span class="line">aa42541900b146f59007de7c0cdc4d3a</span><br><span class="line">[root@bogon ~]#</span><br></pre></td></tr></table></figure></p>
+<p>在解锁页面上输入上述密码,继续进入以下页面.<br><img src="https://upload-images.jianshu.io/upload_images/5104125-b53eb98bf29e189a.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="image.png"><br>建议选择安装推荐的插件,基本上一些常用的插件都会被安装,安装过程如图:<br><img src="https://upload-images.jianshu.io/upload_images/5104125-e9eb4dd0ed8f4b49.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="image.png"><br>安装完后进入以下页面:<br><img src="https://upload-images.jianshu.io/upload_images/5104125-0f2c5f623ad74c2d.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="image.png"><br>开始进入jenkins系统,并查看系统设置:</p>
+<ul>
+<li>主目录是存放Jenkins所有的文件的,工作空间根目录和构建记录目录默认都是在Jenkins主目录下,这个设置一般不用进行变更.<br><img src="https://upload-images.jianshu.io/upload_images/5104125-aa273372599cd1d0.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="image.png"></li>
+<li>执行者数量:可以并发构建的数量.<br>标记:用来记录这个机器的名称(为了分配节点使用，后面子节点会详细介绍).<br>用法:设置这个节点的执行策略(包括尽可能使用这个节点和只允许绑定到这台机器的job.<br>生成前等待时间:这个时间为构建开始前的等待时间.<br>scm签出重试次数:使用svn或者git拉取代码失败重试的次数.<br>Restrict project naming:限制项目命名,勾选后可以看到具体设置,可以设置为默认或者使用正则表达式进行限制.<br><img src="https://upload-images.jianshu.io/upload_images/5104125-96197c3fcc0b579c.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="image.png"></li>
+<li>全局属性<br>environment variables:设置全局变量,在这里定义的全局变量可以在构建或者发送邮件时引用.<br>tool locations:设置全局工具,可以把需要的工具都在这里进行配置,比如maven,ant,jdk等.<br>Help make Jenkins better by sending anonymous usage statistics and crash reports to the Jenkins project:这就是帮助jenkinsXXXXX.<br><img src="https://upload-images.jianshu.io/upload_images/5104125-694dc087c256b2d4.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="image.png"></li>
+<li>设置时间格式<br><img src="https://upload-images.jianshu.io/upload_images/5104125-8c76c0277ee04331.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="image.png"></li>
+<li>管理监控默认选中所有<br><img src="https://upload-images.jianshu.io/upload_images/5104125-86ec94614b32a55e.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="image.png"></li>
+<li>jenkins location<br>jenkins url :设置jenkins的url(发送邮件引用jenkins的地址会取这个值，如果设错了，邮件的连接就会打不开)<br>系统管理员邮件地址：管理员的邮件地址（在构建需要发送邮件时，会用到这个邮件地址）<br><img src="https://upload-images.jianshu.io/upload_images/5104125-2e7605af35bec881.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="image.png"><br>接着进入插件管理,选择可选插件板块,安装并配置maven插件,如果缺少Maven Integration Plugin插件,在创建job时,不会有新建一个maven项目选项.<br><img src="https://upload-images.jianshu.io/upload_images/5104125-c8ef290c5bee3f44.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="image.png"><br><img src="https://upload-images.jianshu.io/upload_images/5104125-143855e08d8b680c.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="image.png"><br>使用jenkins创建一个构建任务<br><img src="https://upload-images.jianshu.io/upload_images/5104125-947693dccc896c2b.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="image.png"><br>输入项目名称hello 选中构建一个maven项目点击确定按钮进入项目配置页面<br><img src="https://upload-images.jianshu.io/upload_images/5104125-a884d7ab872eacd9.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="image.png"><br>在源码管理板块中我们选择git并在repository url填写git仓库名称 但此时会报错<br><img src="https://upload-images.jianshu.io/upload_images/5104125-c538d38eb08cfd86.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="image.png"><br>从报错提示中发现jenkins访问gitlab.william.com时出现连接拒绝,可以断定是由于jenkins容器与gitlab容器无法通讯导致的.<br>我们可以在启动jenkins容器时添加–link选项,并将其指定到需要连接的gitlab容器即可.<br>重启jenkins容器后重新填写仓库URL发现<br><img src="https://upload-images.jianshu.io/upload_images/5104125-ae2637f70ad7afc1.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="image.png"><br>通过错误提示可知:我们所填入的URL是需要身份认证的,可单击Credentials下拉框右侧的Add按钮,并选择Jenkins选项,弹出身份认证信息对话框:<br><img src="https://upload-images.jianshu.io/upload_images/5104125-7327a641c04e130e.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="image.png"><br>上面填写的是gitlab的用户名密码验证 然后添加完后需要选中它,这个时候可以看到已经不报错了.<br><img src="https://upload-images.jianshu.io/upload_images/5104125-0055e78218b6e301.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="image.png"><br>接着在build版本配置maven<br><img src="https://upload-images.jianshu.io/upload_images/5104125-7079794e8a89db05.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="image.png"><br>在Goals and options使用clean package -q可以加快maven构建速度.<br>添加后置构建<br><img src="https://upload-images.jianshu.io/upload_images/5104125-b3c71f0a79795076.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="image.png"><br>点击增加构建后操作步骤 选择归档成品,在文本框中输入需要存档的文件路径:<em>*/target/</em>.jar.<br>单击保存回到主界面<br><img src="https://upload-images.jianshu.io/upload_images/5104125-82a1d68ddf1b5605.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="image.png"><br>单击左侧菜单的立即构建并在控制台输出中查看构建日志<br><img src="https://upload-images.jianshu.io/upload_images/5104125-cc3bb5fb9f501e56.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="image.png"><br>由日志可看出构建过程报错了提示找不到pom文件 回到build板块中修改maven配置Root POM为hello/pom.xml,再重新手工构建.<br>回到jenkins主界面可以看到构建任务列表<br><img src="https://upload-images.jianshu.io/upload_images/5104125-276aef108edb001a.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="image.png"><br>使用jenkins实现自动化发布<br>在Post step板块中填写shell脚本实现自动化发布.<br><img src="https://upload-images.jianshu.io/upload_images/5104125-eb72cb93214d1e49.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="image.png"><br>再次点击立即构建按钮<br><img src="https://upload-images.jianshu.io/upload_images/5104125-ea5563c3ac7b8cf4.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="image.png"><br>出现构建失败错误docker not found,说明jenkins容器中无法执行docker命令,<br>有以下几种解决方案：<h3 id="DooD（Docker-outside-of-Docker）"><a href="#DooD（Docker-outside-of-Docker）" class="headerlink" title="DooD（Docker-outside-of-Docker）"></a>DooD（Docker-outside-of-Docker）</h3></li>
+</ul>
+<p>我们需要赋予jenkins用户sudo权限以便能在容器内运行Docker命令。当然，也可以将jenkins用户加入到Docker组中来避免在所有Docker命令前使用‘sudo’，不过由于这个组gid的不同会造成不可移植</p>
+<h3 id="DinD（Docker-in-Docker）"><a href="#DinD（Docker-in-Docker）" class="headerlink" title="DinD（Docker in Docker）"></a>DinD（Docker in Docker）</h3><p>在docker镜像中要再安装docker服务。<br>此时，在容器中的docker和宿主机的docker是两个不同的程序，相互没有关联，DinD并不比使用特权模式的容器安全性高，不过确实能避免使用sudo。DinD最主要的劣势是你无法重用宿主缓存的镜像（不过如果需要为测试容器提供一个与宿主隔离的干净环境，这将很有用）。</p>
+<h3 id="使用HTTPS与Docker后台程序通讯"><a href="#使用HTTPS与Docker后台程序通讯" class="headerlink" title="使用HTTPS与Docker后台程序通讯"></a>使用HTTPS与Docker后台程序通讯</h3><p>jenkins配置docker插件，并且docker进行端口配置。<br>通过HTTPS暴露socket不需要sudo并且可以使用宿主的镜像，但因为打开了端口增加了攻击面，可以说是最不安全的。</p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Docker/" rel="tag"># Docker</a>
+          
+            <a href="/tags/Gitlab/" rel="tag"># Gitlab</a>
+          
+            <a href="/tags/Jenkins/" rel="tag"># Jenkins</a>
+          
+            <a href="/tags/Maven/" rel="tag"># Maven</a>
+          
+            <a href="/tags/持续集成/" rel="tag"># 持续集成</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2018/07/30/使用Docker部署SpringBoot/" rel="next" title="使用Docker部署SpringBoot">
+                <i class="fa fa-chevron-left"></i> 使用Docker部署SpringBoot
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image"
+                src="/uploads/images/avatar.jpg"
+                alt="william.zhang" />
+            
+              <p class="site-author-name" itemprop="name">william.zhang</p>
+              <p class="site-description motion-element" itemprop="description">纸上得来终觉浅，绝知此事要躬行</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">22</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">8</span>
+                  <span class="site-state-item-name">分类</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">32</span>
+                  <span class="site-state-item-name">标签</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+            <div class="links-of-blogroll motion-element links-of-blogroll-inline">
+              <div class="links-of-blogroll-title">
+                <i class="fa  fa-fw fa-link"></i>
+                Links
+              </div>
+              <ul class="links-of-blogroll-list">
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="https://www.jianshu.com/u/ab57f4fbcce3" title="我的简书" target="_blank">我的简书</a>
+                  </li>
+                
+              </ul>
+            </div>
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#前言"><span class="nav-number">1.</span> <span class="nav-text">前言</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#持续集成"><span class="nav-number">2.</span> <span class="nav-text">持续集成</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#环境搭建"><span class="nav-number">3.</span> <span class="nav-text">环境搭建</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#DooD（Docker-outside-of-Docker）"><span class="nav-number">3.0.1.</span> <span class="nav-text">DooD（Docker-outside-of-Docker）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#DinD（Docker-in-Docker）"><span class="nav-number">3.0.2.</span> <span class="nav-text">DinD（Docker in Docker）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#使用HTTPS与Docker后台程序通讯"><span class="nav-number">3.0.3.</span> <span class="nav-text">使用HTTPS与Docker后台程序通讯</span></a></li></ol></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2018</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">william.zhang</span>
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Pisces</a> v5.1.4</div>
+
+
+
+
+
+        
+<div class="busuanzi-count">
+  <script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+    <span class="site-uv">
+      <i class="fa fa-user"></i> 访问人数
+      <span class="busuanzi-value" id="busuanzi_value_site_uv"></span>
+      
+    </span>
+  
+
+  
+    <span class="site-pv">
+      <i class="fa fa-eye"></i> 总访问量
+      <span class="busuanzi-value" id="busuanzi_value_site_pv"></span>
+      次
+    </span>
+  
+</div>
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.4"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
