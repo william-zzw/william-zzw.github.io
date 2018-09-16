@@ -1,0 +1,843 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="Linux,面试,网络基础,TCP/IP," />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="前言这是一道面试题,主要考察的是linux和网络协议相关基础知识.如何标识一个TCP连接在确定最大连接数之前,先来看看系统如何标识一个tcp连接.系统用一个四元组来唯一标识一个TCP连接:{local ip, local port,remote ip,remote port}.我们知道在网络通信过程中服务端监听一个固定的端口,客户端主动发起连接请求后要经过三次握手才能与服务器建立起一个tcp连接.">
+<meta name="keywords" content="Linux,面试,网络基础,TCP&#x2F;IP">
+<meta property="og:type" content="article">
+<meta property="og:title" content="一个ip地址最多可以同时对外发起多少tcp连接">
+<meta property="og:url" content="http://yoursite.com/2018/09/16/一个ip地址最多可以同时对外发起多少tcp连接/index.html">
+<meta property="og:site_name" content="william-zzw">
+<meta property="og:description" content="前言这是一道面试题,主要考察的是linux和网络协议相关基础知识.如何标识一个TCP连接在确定最大连接数之前,先来看看系统如何标识一个tcp连接.系统用一个四元组来唯一标识一个TCP连接:{local ip, local port,remote ip,remote port}.我们知道在网络通信过程中服务端监听一个固定的端口,客户端主动发起连接请求后要经过三次握手才能与服务器建立起一个tcp连接.">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:updated_time" content="2018-09-16T09:46:10.367Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="一个ip地址最多可以同时对外发起多少tcp连接">
+<meta name="twitter:description" content="前言这是一道面试题,主要考察的是linux和网络协议相关基础知识.如何标识一个TCP连接在确定最大连接数之前,先来看看系统如何标识一个tcp连接.系统用一个四元组来唯一标识一个TCP连接:{local ip, local port,remote ip,remote port}.我们知道在网络通信过程中服务端监听一个固定的端口,客户端主动发起连接请求后要经过三次握手才能与服务器建立起一个tcp连接.">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: 'William-zzw'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2018/09/16/一个ip地址最多可以同时对外发起多少tcp连接/"/>
+
+
+
+
+
+  <title>一个ip地址最多可以同时对外发起多少tcp连接 | william-zzw</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">william-zzw</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/09/16/一个ip地址最多可以同时对外发起多少tcp连接/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="william.zhang">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/uploads/images/avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="william-zzw">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">一个ip地址最多可以同时对外发起多少tcp连接</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-09-16T17:47:06+08:00">
+                2018-09-16
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/面试/" itemprop="url" rel="index">
+                    <span itemprop="name">面试</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+            <span class="post-meta-divider">|</span>
+            <span class="page-pv"><i class="fa fa-file-o"></i> 浏览
+            <span class="busuanzi-value" id="busuanzi_value_page_pv" ></span>次
+            </span>
+          
+
+          
+            <div class="post-wordcount">
+              
+                
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-file-word-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">字数统计&#58;</span>
+                
+                <span title="字数统计">
+                  2,474 字
+                </span>
+              
+
+              
+                <span class="post-meta-divider">|</span>
+              
+
+              
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-clock-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">阅读时长 &asymp;</span>
+                
+                <span title="阅读时长">
+                  11 分钟
+                </span>
+              
+            </div>
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>这是一道面试题,主要考察的是linux和网络协议相关基础知识.<br><strong>如何标识一个TCP连接</strong><br>在确定最大连接数之前,先来看看系统如何标识一个tcp连接.系统用一个四元组来唯一标识一个TCP连接:{local ip, local port,remote ip,remote port}.<br>我们知道在网络通信过程中服务端监听一个固定的端口,客户端主动发起连接请求后要经过三次握手才能与服务器建立起一个tcp连接.客户端每次发起一个tcp连接时,系统会随机选取一个空闲的端口,该端口是独占的不能与其他tcp连接共享,因此理论上一台机器有多少空闲的端口,就能对外发起多少个tcp连接,根据tcp/ip协议,端口port使用16位无符号整数unsigned short来存储,因此本地端口一共有2^16=65536个,即0-65535,其中0~1023是预留端口,0有特殊含义不能使用,1024以下端口都是超级管理员用户(如root)才可以使用,因此就算使用root权限,一台机器最多能使用的端口也只有65535个(除去一些保留的和已被占用的端口,实际可能不足这个数).<br>那么一台机是否真的可以发起65535个tcp连接呢?<br>下面我们用netty写了一个测试的客户端和服务端,来看看在单机linux下能发起的最大tcp连接数,其中代码使用了非阻塞 io,所以不用开大量的线程.<br><strong>Server端主要代码如下:</strong><br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">System.out.println(<span class="string">"server starting...."</span>);</span><br><span class="line">EventLoopGroup bossGroup = <span class="keyword">new</span> NioEventLoopGroup();</span><br><span class="line">EventLoopGroup workerGroup = <span class="keyword">new</span> NioEventLoopGroup();</span><br><span class="line">ServerBootstrap bootstrap = <span class="keyword">new</span> ServerBootstrap();</span><br><span class="line">bootstrap.group(bossGroup, workerGroup);</span><br><span class="line">bootstrap.channel(NioServerSocketChannel.class);</span><br><span class="line">bootstrap.childOption(ChannelOption.SO_REUSEADDR, <span class="keyword">true</span>);</span><br><span class="line">bootstrap.childHandler(<span class="keyword">new</span> ConnectionCountHandler());</span><br><span class="line"><span class="keyword">int</span> port = <span class="number">8100</span>;</span><br><span class="line">bootstrap.bind(port).addListener((ChannelFutureListener) future -&gt; &#123;</span><br><span class="line">    System.out.println(<span class="string">"bind success in port: "</span> + port);</span><br><span class="line">&#125;);</span><br><span class="line">System.out.println(<span class="string">"server started!"</span>);</span><br></pre></td></tr></table></figure></p>
+<p><strong>服务端Handler代码如下:</strong><br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@ChannelHandler</span>.Sharable</span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">ConnectionCountHandler</span> <span class="keyword">extends</span> <span class="title">ChannelInboundHandlerAdapter</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> AtomicInteger nConnection = <span class="keyword">new</span> AtomicInteger();</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">ConnectionCountHandler</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        Executors.newSingleThreadScheduledExecutor().scheduleAtFixedRate(() -&gt; &#123;</span><br><span class="line">            System.out.println(<span class="string">"connections: "</span> + nConnection.get());</span><br><span class="line">        &#125;, <span class="number">0</span>, <span class="number">2</span>, TimeUnit.SECONDS);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">channelRead</span><span class="params">(ChannelHandlerContext ctx, Object msg)</span> </span>&#123;</span><br><span class="line">        ByteBuf in = (ByteBuf) msg;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">channelActive</span><span class="params">(ChannelHandlerContext ctx)</span> </span>&#123;</span><br><span class="line">        nConnection.incrementAndGet();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">channelInactive</span><span class="params">(ChannelHandlerContext ctx)</span> </span>&#123;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p><strong>Client端主要代码如下:</strong><br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line">System.out.println(<span class="string">"client starting...."</span>);</span><br><span class="line">EventLoopGroup eventLoopGroup = <span class="keyword">new</span> NioEventLoopGroup();</span><br><span class="line"><span class="keyword">final</span> Bootstrap bootstrap = <span class="keyword">new</span> Bootstrap();</span><br><span class="line">bootstrap.group(eventLoopGroup);</span><br><span class="line">bootstrap.channel(NioSocketChannel.class);</span><br><span class="line">bootstrap.option(ChannelOption.SO_REUSEADDR, <span class="keyword">true</span>);</span><br><span class="line">bootstrap.handler(<span class="keyword">new</span> ChannelInitializer&lt;SocketChannel&gt;() &#123;</span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">initChannel</span><span class="params">(SocketChannel ch)</span> </span>&#123;</span><br><span class="line">        ch.pipeline().addLast(<span class="keyword">new</span> ClientHandler());</span><br><span class="line">    &#125;</span><br><span class="line">&#125;);</span><br><span class="line"><span class="keyword">while</span> (!Thread.interrupted()) &#123;</span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">        ChannelFuture channelFuture = bootstrap.connect(<span class="string">"192.168.56.101"</span>, <span class="number">8100</span>);</span><br><span class="line">        channelFuture.addListener((ChannelFutureListener) future -&gt; &#123;</span><br><span class="line">            <span class="keyword">if</span> (!future.isSuccess()) &#123;</span><br><span class="line">                System.out.println(<span class="string">"connect failed, exit!:"</span> + future.cause().getMessage());</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;);</span><br><span class="line">        channelFuture.get();</span><br><span class="line">    &#125; <span class="keyword">catch</span> (Exception e) &#123;</span><br><span class="line">        e.printStackTrace();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p><strong>客户端Handler代码如下:</strong><br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@ChannelHandler</span>.Sharable<span class="comment">//该类的实例可以被多个channel共享</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">ClientHandler</span> <span class="keyword">extends</span> <span class="title">SimpleChannelInboundHandler</span>&lt;<span class="title">ByteBuf</span>&gt; </span>&#123;</span><br><span class="line">    <span class="comment">//在到服务器的连接已经建立之后被调用</span></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">channelActive</span><span class="params">(ChannelHandlerContext ctx)</span> </span>&#123;</span><br><span class="line">        ctx.writeAndFlush(Unpooled.copiedBuffer(<span class="string">"Netty rocks!"</span>, CharsetUtil.UTF_8));</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">//当从服务器收到一条消息之后被调用</span></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">channelRead0</span><span class="params">(ChannelHandlerContext ctx, ByteBuf in)</span> </span>&#123;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">//处理过程中引发异常时被调用</span></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">exceptionCaught</span><span class="params">(ChannelHandlerContext ctx, Throwable cause)</span> </span>&#123;</span><br><span class="line">        cause.printStackTrace();</span><br><span class="line">        ctx.close();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>我们使用maven将server和client的代码打成两个jar包,放到同一台linux服务器下并使用以下命令分别启动两个服务:<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">java -jar server.jar</span><br><span class="line">java -jar client.jar</span><br></pre></td></tr></table></figure></p>
+<p>很快客户端便抛出了大量拒绝连接的异常,而服务端显示出来的已连接数只有1000多,于是猜测可能是服务端达到了所能接收的最大tcp连接数(即文件描述符个数),因为受服务器资源、操作系统的限制,linux内核默认文件描述符最大值是1024,也就是说默认支持最大并发连接是1024个(每个tcp连接都要占用一定内存,每个socket就是一个文件描述符)<br>我们输入以下命令查看linux内核参数:<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">[root@bogon local]# ulimit -a</span><br><span class="line">core file size          (blocks, -c) 0</span><br><span class="line">data seg size           (kbytes, -d) unlimited</span><br><span class="line">scheduling priority             (-e) 0</span><br><span class="line">file size               (blocks, -f) unlimited</span><br><span class="line">pending signals                 (-i) 7271</span><br><span class="line">max locked memory       (kbytes, -l) 64</span><br><span class="line">max memory size         (kbytes, -m) unlimited</span><br><span class="line">open files                      (-n) 1024</span><br><span class="line">pipe size            (512 bytes, -p) 8</span><br><span class="line">POSIX message queues     (bytes, -q) 819200</span><br><span class="line">real-time priority              (-r) 0</span><br><span class="line">stack size              (kbytes, -s) 8192</span><br><span class="line">cpu time               (seconds, -t) unlimited</span><br><span class="line">max user processes              (-u) 7271</span><br><span class="line">virtual memory          (kbytes, -v) unlimited</span><br><span class="line">file locks                      (-x) unlimited</span><br></pre></td></tr></table></figure></p>
+<p>可以看到其中的open files是1024,接着我们调整内核参数:<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ulimit -n 102400</span><br></pre></td></tr></table></figure></p>
+<p><strong>注意以上命令只能临时生效,系统重启后又恢复成默认值.</strong><br>要想永久生效,在/etc/security/limits.conf文件中配置如下两行：</p>
+<ul>
+<li>hard nofile 102400</li>
+<li>soft nofile  102400</li>
+</ul>
+<p>soft和hard为两种限制方式,其中soft表示警告的限制,hard表示真正限制,nofile表示打开的最大文件数.<br>但这是针对于单个进程的修改,若想修改系统全局的限制,可以执行下面的操作:</p>
+<ul>
+<li>cat /proc/sys/fs/file-max</li>
+<li>etc/sysctl.conf</li>
+</ul>
+<p>cat /proc/sys/fs/file-max查看我所有进程能够打开的最大文件数是多少,每一个tcp连接代表一个文件,局部的不能大于全局的限制,然后vi etc/sysctl.conf,在里面添加fs.file-max = 102400,file-max表示全局文件句柄数的限制.<br><strong>最后看看执行结果:当server端连接数到达28232时,client开始抛出大量异常java.net.BindException: 无法指定被请求的地址.</strong><br>server端:<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">connections: 2627</span><br><span class="line">connections: 4688</span><br><span class="line">connections: 5722</span><br><span class="line">connections: 8593</span><br><span class="line">connections: 10048</span><br><span class="line">connections: 13383</span><br><span class="line">connections: 16013</span><br><span class="line">connections: 19736</span><br><span class="line">connections: 22628</span><br><span class="line">connections: 26571</span><br><span class="line">connections: 28232</span><br><span class="line">connections: 28232</span><br><span class="line">connections: 28232</span><br></pre></td></tr></table></figure></p>
+<p>client端：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br></pre></td><td class="code"><pre><span class="line">Cconnect failed, exit!:无法指定被请求的地址: /192.168.56.101:8100</span><br><span class="line">java.util.concurrent.ExecutionException: io.netty.channel.AbstractChannel$AnnotatedSocketException: 无法指定被请求的地址: /192.168.56.101:8100</span><br><span class="line">	at io.netty.util.concurrent.AbstractFuture.get(AbstractFuture.java:41)</span><br><span class="line">	at demo.test.TestClientApplication.client3(TestClientApplication.java:214)</span><br><span class="line">	at demo.test.TestClientApplication.main(TestClientApplication.java:250)</span><br><span class="line">	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)</span><br><span class="line">	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)</span><br><span class="line">	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)</span><br><span class="line">	at java.lang.reflect.Method.invoke(Method.java:498)</span><br><span class="line">	at org.springframework.boot.loader.MainMethodRunner.run(MainMethodRunner.java:48)</span><br><span class="line">	at org.springframework.boot.loader.Launcher.launch(Launcher.java:87)</span><br><span class="line">	at org.springframework.boot.loader.Launcher.launch(Launcher.java:50)</span><br><span class="line">	at org.springframework.boot.loader.JarLauncher.main(JarLauncher.java:51)</span><br><span class="line">Caused by: io.netty.channel.AbstractChannel$AnnotatedSocketException: 无法指定被请求的地址: /192.168.56.101:8100</span><br><span class="line">	at sun.nio.ch.Net.connect0(Native Method)</span><br><span class="line">	at sun.nio.ch.Net.connect(Net.java:454)</span><br><span class="line">	at sun.nio.ch.Net.connect(Net.java:446)</span><br><span class="line">	at sun.nio.ch.SocketChannelImpl.connect(SocketChannelImpl.java:648)</span><br><span class="line">	at io.netty.util.internal.SocketUtils$3.run(SocketUtils.java:83)</span><br><span class="line">	at io.netty.util.internal.SocketUtils$3.run(SocketUtils.java:80)</span><br><span class="line">	at java.security.AccessController.doPrivileged(Native Method)</span><br><span class="line">	at io.netty.util.internal.SocketUtils.connect(SocketUtils.java:80)</span><br><span class="line">	at io.netty.channel.socket.nio.NioSocketChannel.doConnect(NioSocketChannel.java:312)</span><br><span class="line">	at io.netty.channel.nio.AbstractNioChannel$AbstractNioUnsafe.connect(AbstractNioChannel.java:254)</span><br><span class="line">	at io.netty.channel.DefaultChannelPipeline$HeadContext.connect(DefaultChannelPipeline.java:1366)</span><br><span class="line">	at io.netty.channel.AbstractChannelHandlerContext.invokeConnect(AbstractChannelHandlerContext.java:545)</span><br><span class="line">	at io.netty.channel.AbstractChannelHandlerContext.connect(AbstractChannelHandlerContext.java:530)</span><br><span class="line">	at io.netty.channel.AbstractChannelHandlerContext.connect(AbstractChannelHandlerContext.java:512)</span><br><span class="line">	at io.netty.channel.DefaultChannelPipeline.connect(DefaultChannelPipeline.java:1024)</span><br><span class="line">	at io.netty.channel.AbstractChannel.connect(AbstractChannel.java:259)</span><br><span class="line">	at io.netty.bootstrap.Bootstrap$3.run(Bootstrap.java:252)</span><br><span class="line">	at io.netty.util.concurrent.AbstractEventExecutor.safeExecute(AbstractEventExecutor.java:163)</span><br><span class="line">	at io.netty.util.concurrent.SingleThreadEventExecutor.runAllTasks(SingleThreadEventExecutor.java:404)</span><br><span class="line">	at io.netty.channel.nio.NioEventLoop.run(NioEventLoop.java:464)</span><br><span class="line">	at io.netty.util.concurrent.SingleThreadEventExecutor$5.run(SingleThreadEventExecutor.java:884)</span><br><span class="line">	at io.netty.util.concurrent.FastThreadLocalRunnable.run(FastThreadLocalRunnable.java:30)</span><br><span class="line">	at java.lang.Thread.run(Thread.java:748)</span><br><span class="line">Caused by: java.net.BindException: 无法指定被请求的地址</span><br></pre></td></tr></table></figure></p>
+<p>从测试的结果可以证明,linux对外随机分配的端口是有限制,理论上单机对外端口数可达65535,但实际对外可建立的连接默认最大只有28232个,在linux下执行以下命令可知:<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">[root@bogon local]#  cat /proc/sys/net/ipv4/ip_local_port_range</span><br><span class="line">32768	60999</span><br></pre></td></tr></table></figure></p>
+<p>也就是在这个区间内的端口可以使用,所以单个IP对外最多只能发送28232个tcp请求.<br>通过以下命令可以临时调整这个区间的范围,但是系统重启后会还原成默认值.<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">echo &quot;1024 65535&quot;&gt; /proc/sys/net/ipv4/ip_local_port_range</span><br></pre></td></tr></table></figure></p>
+<p>要想永远生效可以修改/etc/sysctl.conf文件,增加一行:<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">net.ipv4.ip_local_port_range= 1024 65535</span><br></pre></td></tr></table></figure></p>
+<p>然后再执行:<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sysctl -p</span><br></pre></td></tr></table></figure></p>
+<p>这样就永远生效了.现在单ip可以发起64510个tcp连接了.<br><strong>扩展</strong><br>单机最多有6w多连接,若想模拟实现百万级别的客户端连接,至少需要十几台机器以上,当然也可以在单机上使用多个虚拟ip来模拟实现.<br> 前面研究的是client能建立的最大tcp连接数,而server能接收的最大tcp连接数又是多少呢?<br>理论上是无上限的,server通常固定在某个本地端口上监听client的连接请求.不考虑地址重用(unix的SO_REUSEADDR选项)的情况下,即使server端有多个ip,本地监听端口也是独占的,因此server端tcp连接4元组中只有remote ip(也就是client ip)和remote port(客户端port)是可变的,因此最大tcp连接为客户端ip数×客户端port数,对于IPV4,不考虑ip地址分类等因素,最大tcp连接数约为2的32次方(ip数)×2的16次方(port数),也就是server端单个ip单个端口最大tcp连接数约为2的48次方.<br>但是在实际环境中,受到服务器配置等物理条件的制约,其最大并发tcp连接数远不能达到理论值,不过通过增加内存、修改最大文件描述符个数等参数,单机最大并发TCP连接数是可以达到10万,甚至上百万的.<br>参考：<br><a href="https://my.oschina.net/yang1992/blog/522533" target="_blank" rel="noopener">https://my.oschina.net/yang1992/blog/522533</a><br><a href="https://colobu.com/2015/05/22/implement-C1000K-servers-by-spray-netty-undertow-and-node-js/" target="_blank" rel="noopener">https://colobu.com/2015/05/22/implement-C1000K-servers-by-spray-netty-undertow-and-node-js/</a><br><a href="https://www.dozer.cc/2014/12/netty-long-connection.html" target="_blank" rel="noopener">https://www.dozer.cc/2014/12/netty-long-connection.html</a><br><a href="https://blog.csdn.net/Wing_93/article/details/81676314" target="_blank" rel="noopener">https://blog.csdn.net/Wing_93/article/details/81676314</a><br><a href="http://www.blogjava.net/yongboy/archive/2013/04/09/397559.html" target="_blank" rel="noopener">http://www.blogjava.net/yongboy/archive/2013/04/09/397559.html</a></p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Linux/" rel="tag"># Linux</a>
+          
+            <a href="/tags/面试/" rel="tag"># 面试</a>
+          
+            <a href="/tags/网络基础/" rel="tag"># 网络基础</a>
+          
+            <a href="/tags/TCP-IP/" rel="tag"># TCP/IP</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2018/08/07/Jenkins+Docker+Gitlab+Maven搭建持续集成环境/" rel="next" title="Jenkins+Docker+Gitlab+Maven搭建持续集成环境">
+                <i class="fa fa-chevron-left"></i> Jenkins+Docker+Gitlab+Maven搭建持续集成环境
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image"
+                src="/uploads/images/avatar.jpg"
+                alt="william.zhang" />
+            
+              <p class="site-author-name" itemprop="name">william.zhang</p>
+              <p class="site-description motion-element" itemprop="description">纸上得来终觉浅，绝知此事要躬行</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">23</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">9</span>
+                  <span class="site-state-item-name">分类</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">35</span>
+                  <span class="site-state-item-name">标签</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+            <div class="links-of-blogroll motion-element links-of-blogroll-inline">
+              <div class="links-of-blogroll-title">
+                <i class="fa  fa-fw fa-link"></i>
+                Links
+              </div>
+              <ul class="links-of-blogroll-list">
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="https://www.jianshu.com/u/ab57f4fbcce3" title="我的简书" target="_blank">我的简书</a>
+                  </li>
+                
+              </ul>
+            </div>
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#前言"><span class="nav-number">1.</span> <span class="nav-text">前言</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2018</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">william.zhang</span>
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Pisces</a> v5.1.4</div>
+
+
+
+
+
+        
+<div class="busuanzi-count">
+  <script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+    <span class="site-uv">
+      <i class="fa fa-user"></i> 访问人数
+      <span class="busuanzi-value" id="busuanzi_value_site_uv"></span>
+      
+    </span>
+  
+
+  
+    <span class="site-pv">
+      <i class="fa fa-eye"></i> 总访问量
+      <span class="busuanzi-value" id="busuanzi_value_site_pv"></span>
+      次
+    </span>
+  
+</div>
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.4"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
